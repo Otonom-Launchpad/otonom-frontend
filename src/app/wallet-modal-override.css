@@ -1,0 +1,108 @@
+/* Direct overrides for wallet modal */
+.wallet-adapter-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wallet-adapter-modal-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 400px;
+  border-radius: 10px;
+  background-color: #000000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-inter-tight);
+  flex: 1;
+}
+
+.wallet-adapter-modal-button-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 12px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border: none;
+  color: #fff;
+}
+
+.wallet-adapter-modal-title {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 36px;
+  margin: 0;
+  padding: 50px 80px 30px;
+  text-align: center;
+  color: #fff;
+}
+
+.wallet-adapter-modal-content {
+  padding: 0 20px 20px;
+  margin-top: 10px;
+}
+
+.wallet-adapter-modal-list {
+  margin: 0 0 12px;
+  padding: 0;
+  width: 100%;
+  list-style: none;
+}
+
+.wallet-adapter-modal-list li {
+  text-align: center;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  font-family: var(--font-inter-tight);
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 12px 20px;
+  margin-top: 5px;
+  margin-bottom: 50px;
+  background-color: #9d00ff;
+  color: white;
+  width: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font-size: 16px;
+  position: relative;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background-color: #8400d6;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button img,
+.wallet-adapter-modal-list .wallet-adapter-button svg {
+  max-width: 24px;
+  max-height: 24px;
+  margin-right: 12px;
+  display: block !important;
+  position: absolute;
+  left: 20px;
+}
+
+/* Center the text */
+.wallet-adapter-modal-list .wallet-adapter-button span {
+  width: 100%;
+  text-align: center;
+}

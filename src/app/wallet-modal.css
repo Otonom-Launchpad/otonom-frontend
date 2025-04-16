@@ -1,0 +1,67 @@
+/* Custom Wallet Modal Styling */
+.wallet-adapter-modal-wrapper {
+  background-color: #000000 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+  max-width: 450px !important;
+}
+
+.wallet-adapter-modal-title {
+  color: white !important;
+  font-family: var(--font-inter-tight) !important;
+  font-weight: 600 !important;
+  font-size: 24px !important;
+  margin-bottom: 40px !important;
+  margin-top: 20px !important;
+  text-align: center !important;
+}
+
+.wallet-adapter-modal-button-close {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  margin-top: 16px !important;
+}
+
+/* Style the wallet buttons */
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background-color: #9d00ff !important;
+  width: 60% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px 24px !important;
+  border-radius: 9999px !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background-color: #8400d6 !important;
+}
+
+/* Show the wallet icons */
+.wallet-adapter-modal-list .wallet-adapter-button img {
+  display: inline-block !important;
+  width: 24px !important;
+  height: 24px !important;
+  margin-right: 12px !important;
+}
+
+/* Change the wallet list background */
+.wallet-adapter-modal-list {
+  margin: 0 !important;
+  padding: 16px !important;
+}
+
+.wallet-adapter-modal-list li {
+  margin: 8px 0 !important;
+}
+
+/* Change the modal content text */
+.wallet-adapter-modal-content {
+  color: white !important;
+  padding: 24px !important;
+}
+
+/* Add a subtle border to the modal */
+.wallet-adapter-modal-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}

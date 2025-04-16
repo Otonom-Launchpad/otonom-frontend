@@ -1,0 +1,146 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { CustomWalletButton } from '@/components/wallet/CustomWalletButton';
+
+export function Header() {
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 h-20 bg-white/60 backdrop-blur-md">
+      <div className="container mx-auto px-4 h-full flex items-center">
+        <div className="flex-1">
+          <Link href="/" className="flex items-center">
+            <div className="h-9 w-auto flex items-center">
+              <img src="/images/Otonom Logo.svg" alt="Otonom Fund" className="h-9" />
+            </div>
+          </Link>
+        </div>
+        
+        <nav className="hidden md:flex items-center justify-center flex-1">
+          <div className="flex space-x-8">
+            <Link 
+              href="/projects" 
+              className={`text-sm font-medium ${pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+            >
+              Projects
+            </Link>
+            <Link 
+              href="/explore" 
+              className={`text-sm font-medium ${pathname === '/explore' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+            >
+              Explore
+            </Link>
+            <Link 
+              href="/about" 
+              className={`text-sm font-medium ${pathname === '/about' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+            >
+              About
+            </Link>
+            <Link 
+              href="/faq" 
+              className={`text-sm font-medium ${pathname === '/faq' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+            >
+              FAQ
+            </Link>
+          </div>
+        </nav>
+        
+        <div className="flex items-center justify-end flex-1">
+          <div className="hidden md:flex items-center mr-10">
+            <Link href="https://www.linkedin.com/company/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+              in
+            </Link>
+            <span className="mx-5 text-slate-800">/</span>
+            <Link href="https://x.com/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+              X
+            </Link>
+            <span className="mx-5 text-slate-800">/</span>
+            <Link href="https://github.com/Otonom-Launchpad" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+              Github
+            </Link>
+          </div>
+          <div className="hidden sm:block">
+            <CustomWalletButton />
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden ml-4 p-2 rounded-md focus:outline-none"
+            onClick={toggleMobileMenu}
+          >
+            <span className="sr-only">Open main menu</span>
+            {mobileMenuOpen ? (
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+      
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white shadow-lg absolute w-full z-50">
+          <div className="px-4 pt-2 pb-4 space-y-1 sm:px-6">
+            <Link 
+              href="/projects"
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Projects
+            </Link>
+            <Link 
+              href="/explore"
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/explore' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Explore
+            </Link>
+            <Link 
+              href="/about"
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/about' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link 
+              href="/faq"
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/faq' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              FAQ
+            </Link>
+            <div className="flex justify-center px-3 py-5 mt-2 mb-2">
+              <Link href="https://www.linkedin.com/company/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+                in
+              </Link>
+              <span className="mx-5 text-slate-800">/</span>
+              <Link href="https://x.com/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+                X
+              </Link>
+              <span className="mx-5 text-slate-800">/</span>
+              <Link href="https://github.com/Otonom-Launchpad" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+                Github
+              </Link>
+            </div>
+            <div className="sm:hidden px-3 py-3 flex justify-center mt-1 mb-3">
+              <CustomWalletButton compact={true} />
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}

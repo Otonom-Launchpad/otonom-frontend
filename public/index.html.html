@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otonom Fund</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #f5f5f5;
+    }
+    .header {
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      color: #9d00ff;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .nav {
+      display: flex;
+      gap: 2rem;
+    }
+    .nav a {
+      color: #666;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav a:hover {
+      color: #9d00ff;
+    }
+    .wallet-button {
+      background-color: #9d00ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      text-decoration: none;
+    }
+    .wallet-button:hover {
+      background-color: #8a00e6;
+    }
+    .hero {
+      background: linear-gradient(to right, #f0e6ff, #e6e6ff);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    .hero-subtitle {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      color: #666;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .secondary-button {
+      background-color: white;
+      color: #9d00ff;
+      border: 1px solid #9d00ff;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      text-decoration: none;
+    }
+    .secondary-button:hover {
+      background-color: #f9f9f9;
+    }
+    .stats {
+      padding: 4rem 2rem;
+      background-color: white;
+    }
+    .stats-grid {
+      display: flex;
+      justify-content: space-around;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #9d00ff;
+    }
+    .stat-label {
+      font-size: 1rem;
+      color: #666;
+    }
+    .featured {
+      padding: 4rem 2rem;
+      background-color: #f5f5f5;
+    }
+    .section-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #333;
+    }
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .featured-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .featured-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .featured-image {
+      height: 200px;
+      background-color: #ddd;
+    }
+    .featured-content {
+      padding: 1.5rem;
+    }
+    .featured-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    .featured-category {
+      font-size: 0.875rem;
+      color: #9d00ff;
+      margin-bottom: 1rem;
+    }
+    .featured-description {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .featured-button {
+      display: block;
+      width: 100%;
+      background-color: #9d00ff;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+    .featured-button:hover {
+      background-color: #8a00e6;
+    }
+    .how-it-works {
+      padding: 4rem 2rem;
+      background-color: white;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .step-item {
+      text-align: center;
+    }
+    .step-number {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #f0e6ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #9d00ff;
+    }
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    .step-description {
+      font-size: 0.875rem;
+      color: #666;
+      line-height: 1.5;
+    }
+    .cta {
+      padding: 4rem 2rem;
+      background-color: #f0e6ff;
+      text-align: center;
+    }
+    .cta-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    .cta-description {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      color: #666;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .footer {
+      background-color: #333;
+      color: white;
+      padding: 3rem 2rem;
+      margin-top: auto;
+    }
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+    .footer-section h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .footer-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .footer-section li {
+      margin-bottom: 0.5rem;
+    }
+    .footer-section a {
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-section a:hover {
+      color: white;
+    }
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid #444;
+      text-align: center;
+      color: #ccc;
+      font-size: 0.875rem;
+    }
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      .stats-grid {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">Otonom Fund</a>
+    <nav class="nav">
+      <a href="projects.html">Projects</a>
+      <a href="#">About</a>
+      <a href="#">FAQ</a>
+    </nav>
+    <a href="dashboard.html" class="wallet-button">Connect Wallet</a>
+  </header>
+
+  <section class="hero">
+    <h1 class="hero-title">Funding the Next Generation of AI Innovation</h1>
+    <p class="hero-subtitle">A decentralized launchpad connecting breakthrough AI projects with community funding, powered by blockchain technology.</p>
+    <div class="hero-buttons">
+      <a href="projects.html" class="wallet-button">Explore Projects</a>
+      <a href="#" class="secondary-button">Learn More</a>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-value">$48M+</div>
+        <div class="stat-label">Total Funding</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">124+</div>
+        <div class="stat-label">AI Projects</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">38,000+</div>
+        <div class="stat-label">Community Members</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="featured">
+    <h2 class="section-title">Featured AI Projects</h2>
+    <div class="featured-grid">
+      <div class="featured-card">
+        <div class="featured-image"></div>
+        <div class="featured-content">
+          <h3 class="featured-title">NeuralWave AI</h3>
+          <div class="featured-category">AI Research</div>
+          <p class="featured-description">Advanced neural network for generative content creation across multiple modalities including text, images, audio, and video.</p>
+          <a href="project-details.html" class="featured-button">View Details</a>
+        </div>
+      </div>
+      <div class="featured-card">
+        <div class="featured-image"></div>
+        <div class="featured-content">
+          <h3 class="featured-title">SynthGen</h3>
+          <div class="featured-category">Data Science</div>
+          <p class="featured-description">Synthetic data generation platform for machine learning, enabling the creation of high-quality training data for AI models.</p>
+          <a href="project-details.html" class="featured-button">View Details</a>
+        </div>
+      </div>
+      <div class="featured-card">
+        <div class="featured-image"></div>
+        <div class="featured-content">
+          <h3 class="featured-title">EcoAI Solutions</h3>
+          <div class="featured-category">Climate Tech</div>
+          <p class="featured-description">AI-powered solutions for environmental monitoring and optimization, helping organizations reduce their carbon footprint.</p>
+          <a href="project-details.html" class="featured-button">View Details</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how-it-works">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <h3 class="step-title">Connect Wallet</h3>
+        <p class="step-description">Connect your Solana wallet to get started with Otonom Fund.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <h3 class="step-title">Choose Tier</h3>
+        <p class="step-description">Select your investment tier based on your $OFUND holdings.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <h3 class="step-title">Invest in Projects</h3>
+        <p class="step-description">Browse and invest in curated AI projects that match your interests.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-number">4</div>
+        <h3 class="step-title">Track Performance</h3>
+        <p class="step-description">Monitor your investments and track project performance in your dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2 class="cta-title">Ready to Start Investing?</h2>
+    <p class="cta-description">Join the Otonom Fund community and start investing in the future of AI today.</p>
+    <a href="dashboard.html" class="wallet-button">Connect Wallet</a>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Otonom Fund</h3>
+        <p>AI-powered launchpad for funding next-gen AI ventures</p>
+      </div>
+      <div class="footer-section">
+        <h3>Platform</h3>
+        <ul>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Tokenomics</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Resources</h3>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Connect</h3>
+        <ul>
+          <li><a href="#">Twitter</a></li>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Otonom Fund. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
