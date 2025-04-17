@@ -188,7 +188,7 @@ export default function ProjectDetailsPage() {
   return (
     <MainLayout>
       {/* Hero section with project image and gradient overlay */}
-      <div className="relative h-[600px] bg-black">
+      <div className="relative h-[650px] bg-black mt-20">
         {project.image_url && (
           <div className="absolute inset-0">
             <Image 
@@ -202,7 +202,7 @@ export default function ProjectDetailsPage() {
           </div>
         )}
         
-        <div className="container relative z-10 mx-auto px-4 h-full flex items-center pt-8">
+        <div className="container relative z-10 mx-auto px-4 h-full flex items-center">
           <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 py-0">
             {/* Project info aligned left */}
             <div className="text-white md:col-span-8 flex flex-col justify-center mt-0 md:mt-0">

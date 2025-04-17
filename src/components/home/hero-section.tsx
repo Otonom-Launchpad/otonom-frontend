@@ -4,7 +4,13 @@ import { Button } from '@/components/ui/button';
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[calc(100vh-5rem)] flex items-center overflow-hidden bg-white py-20">
+    <section className="relative min-h-screen flex flex-col justify-start overflow-hidden bg-gradient-to-b from-gray-50 to-white pb-20">
+      
+      {/* Explicit header spacing */}
+      <div className="h-20"></div> {/* Equal to header height */}
+      
+      {/* Extra top spacing */}
+      <div className="h-32 md:h-48 lg:h-64"></div>
       
       {/* Main content */}
       <div className="container px-4 md:px-6 mx-auto relative z-10">

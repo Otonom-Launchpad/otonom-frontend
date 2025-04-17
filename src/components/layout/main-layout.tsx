@@ -12,7 +12,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 pt-16"> {/* Added padding top to account for fixed header */}
+      <main className="flex-1">
         {children}
       </main>
       <Footer />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { CustomWalletButton } from '@/components/wallet/CustomWalletButton';
@@ -8,13 +8,36 @@ import { CustomWalletButton } from '@/components/wallet/CustomWalletButton';
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  
+  // Handle scroll events
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const heroHeight = window.innerHeight * 0.3; // 30% of viewport height
+      
+      if (currentScrollY < 20) {
+        // Always show at the very top
+        setVisible(true);
+      } else if (currentScrollY > heroHeight) {
+        // Hide when scrolled past 30% of hero
+        setVisible(lastScrollY > currentScrollY); // Show when scrolling up
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
   
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-20 bg-white/60 backdrop-blur-md">
+    <header className={`fixed top-0 left-0 right-0 z-50 h-20 bg-white/40 backdrop-blur-md border-b border-gray-100/20 transition-transform duration-300 ${visible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="container mx-auto px-4 h-full flex items-center">
         <div className="flex-1">
           <Link href="/" className="flex items-center">
