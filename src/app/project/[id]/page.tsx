@@ -216,7 +216,7 @@ export default function ProjectDetailsPage() {
             <h1 className="text-2xl font-bold mb-4 font-heading">Error Loading Project</h1>
             <p className="text-gray-600 mb-8">{error || 'Project not found'}</p>
             <Link href="/projects">
-              <Button className="bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white rounded-[100px] py-3 h-auto font-medium">Browse All Projects</Button>
+              <Button className="bg-black hover:bg-black/80 text-white rounded-[100px] py-3 h-auto font-medium">Browse All Projects</Button>
             </Link>
           </div>
         </div>

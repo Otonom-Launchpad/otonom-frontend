@@ -48,9 +48,8 @@ export function adaptProjectForUI(supabaseProject: DbProject): UiProject {
     throw new Error('Cannot adapt undefined project');
   }
 
-  // Calculate a consistent numeric ID if needed for UI components that expect numbers
-  const numericId = parseInt(supabaseProject.id) || 
-    Math.abs(supabaseProject.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 1000);
+  // Use the original UUID as the ID
+  const projectId = supabaseProject.id;
   
   // Determine a consistent placeholder image based on project ID
   const placeholderImages = [
@@ -100,7 +99,7 @@ export function adaptProjectForUI(supabaseProject: DbProject): UiProject {
   }
     
   return {
-    id: numericId,
+    id: projectId,
     name: supabaseProject.name,
     category: supabaseProject.project_token_symbol || 'AI',
     description: supabaseProject.short_description,

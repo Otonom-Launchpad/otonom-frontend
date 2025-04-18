@@ -105,7 +105,7 @@ export function ProjectCard({
         )}
 
         <Link href={`/project/${id}`} className="block mt-6">
-          <Button className="w-full bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white rounded-full py-3 h-auto font-medium">
+          <Button className="w-full bg-black hover:bg-black/80 text-white rounded-full py-3 h-auto font-medium">
             View Project
           </Button>
         </Link>
