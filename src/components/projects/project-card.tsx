@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 interface ProjectCardProps {
-  id: number;
+  id: number | string;
   name: string;
   category: string;
   description: string;
@@ -47,7 +47,7 @@ export function ProjectCard({
   ];
   
   // Select a placeholder based on the project ID to ensure consistency
-  const placeholderImage = defaultPlaceholders[id % defaultPlaceholders.length];
+  const placeholderImage = defaultPlaceholders[typeof id === 'number' ? id % defaultPlaceholders.length : 0];
   
   return (
     <Card className="overflow-hidden border border-slate-200 shadow-sm rounded-lg transition-shadow hover:shadow-md">
@@ -105,7 +105,7 @@ export function ProjectCard({
         )}
 
         <Link href={`/project/${id}`} className="block mt-6">
-          <Button className="w-full bg-black hover:bg-black/80 text-white rounded-full py-3">
+          <Button className="w-full bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white rounded-full py-3 h-auto font-medium">
             View Project
           </Button>
         </Link>

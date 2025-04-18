@@ -6,45 +6,45 @@ import { ProjectCard } from '@/components/projects/project-card';
 import { Button } from '@/components/ui/button';
 import { adaptProjectForUI, UiProject, DbProject } from '@/lib/adapters';
 
-// Mock project data
+// Mock project data mapping to our real project UUIDs
 const featuredProjects = [
   {
-    id: 1,
-    name: 'NeuroVerse AI',
-    category: 'Machine Learning',
-    description: 'A decentralized neural network for machine learning algorithms that operates across distributed nodes, enabling more efficient and scalable AI model training.',
-    fundingGoal: 1200000,
-    fundingRaised: 850000,
+    id: 'aa9ef18d-1644-4af4-b1e8-f5f1d95eccf3', // Cortex Mind
+    name: 'Cortex Mind',
+    category: 'BCI Technology',
+    description: 'AI-driven brain-computer interface optimizing treatment for neurological disorders.',
+    fundingGoal: 6000000,
+    fundingRaised: 1200000,
     investors: 1243,
-    imageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=1000',
     status: 'Active' as const,
-    date: '9/15/2023',
+    date: '04/05/2025',
     isPublic: true,
   },
   {
-    id: 2,
-    name: 'SynthGen',
-    category: 'Synthetic Data',
-    description: 'An AI-powered platform generating synthetic data for training machine learning models, with a focus on privacy and ethical considerations.',
-    fundingGoal: 800000,
-    fundingRaised: 430000,
+    id: '1b4115dc-7280-4b90-8c23-0034fb05fdf1', // AI Fusion
+    name: 'AI Fusion',
+    category: 'Enterprise Analytics',
+    description: 'Self-learning AI model for enterprise data analytics with built-in fraud detection.',
+    fundingGoal: 3000000,
+    fundingRaised: 1800000,
     investors: 587,
-    imageUrl: 'https://images.unsplash.com/photo-1633412802994-5c058f151b66?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200&q=80',
-    status: 'Completed' as const,
-    date: '8/10/2023',
+    imageUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1000',
+    status: 'Active' as const,
+    date: '04/01/2025',
     isPublic: true,
   },
   {
-    id: 3,
-    name: 'EcoAI Solutions',
-    category: 'Climate Tech',
-    description: 'Leveraging AI for environmental monitoring and climate prediction models that help optimize resource usage and reduce carbon footprints.',
-    fundingGoal: 1500000,
-    fundingRaised: 0,
-    investors: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200&q=80',
-    status: 'Upcoming' as const,
-    date: '10/20/2023',
+    id: 'f10c5123-0f73-48c6-be9d-ca2478051916', // Neural Bridge
+    name: 'Neural Bridge',
+    category: 'Decentralized AI',
+    description: 'Decentralized AI knowledge marketplace connecting specialized models through secure computing.',
+    fundingGoal: 5000000,
+    fundingRaised: 3250000,
+    investors: 1875,
+    imageUrl: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?q=80&w=1000',
+    status: 'Active' as const,
+    date: '03/15/2025',
     isPublic: true,
   },
 ];
@@ -200,7 +200,7 @@ export function FeaturedProjectsSection() {
               Discover innovative AI solutions that are reshaping industries and creating new possibilities with blockchain technology.
             </p>
           </div>
-          <Link href="#" className="mt-4 md:mt-0 text-[#9d00ff] hover:underline font-medium">
+          <Link href="/projects" className="mt-4 md:mt-0 text-[#9d00ff] hover:underline font-medium">
             View all projects
           </Link>
         </div>

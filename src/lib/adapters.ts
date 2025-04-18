@@ -27,7 +27,7 @@ export interface DbProject {
 
 // UI project type (expected by components)
 export interface UiProject {
-  id: number;
+  id: number | string;
   name: string;
   category: string;
   description: string;
