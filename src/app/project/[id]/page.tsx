@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { parseMarkdown } from "@/lib/markdown-utils";
+import { notFound } from 'next/navigation';
 
 // Custom Progress component since the standard one is missing
 const Progress = ({ value = 0, className = '', indicatorClassName = '' }) => {
@@ -100,6 +101,11 @@ export default function ProjectDetailsPage() {
           } catch (e) {
             console.warn('Failed to re-parse tokenomics:', e);
           }
+        }
+        
+        if (!data || data.error === 'Project not found') {
+          notFound();
+          return;
         }
         
         setProject(data);
@@ -205,12 +211,12 @@ export default function ProjectDetailsPage() {
   if (error || !project) {
     return (
       <MainLayout>
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 pt-32 pb-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Error Loading Project</h1>
+            <h1 className="text-2xl font-bold mb-4 font-heading">Error Loading Project</h1>
             <p className="text-gray-600 mb-8">{error || 'Project not found'}</p>
-            <Link href="/">
-              <Button>Return to Homepage</Button>
+            <Link href="/projects">
+              <Button className="bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white rounded-[100px] py-3 h-auto font-medium">Browse All Projects</Button>
             </Link>
           </div>
         </div>
