@@ -101,11 +101,13 @@ The Neural Bridge platform uses a combination of blockchain technology and feder
         treasury: '10%'
       },
       vesting: {
+        // Updated vesting data for consistency
         team: '4 years with 1 year cliff',
         investors: '3 years with 6 month cliff',
         ecosystem: 'Released based on network milestones',
         research: 'Linear release over 5 years',
-        treasury: 'Managed by governance'
+        treasury: 'Managed by governance',
+        distribution: 'Linear'
       }
     }),
     project_token_name: 'Neural Bridge Token',
