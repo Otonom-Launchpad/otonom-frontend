@@ -77,17 +77,31 @@ export default function ProjectDetailsPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'tokenomics'>('overview');
   const [investmentAmount, setInvestmentAmount] = useState<number>(0);
 
+  // Version 2.0 - Force refresh of vesting tables
   useEffect(() => {
     const fetchProject = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/projects/${params.id}`);
+        // Added cache-busting parameter
+        const response = await fetch(`/api/projects/${params.id}?v=2.0`);
         
         if (!response.ok) {
           throw new Error(`Error fetching project: ${response.statusText}`);
         }
         
         const data = await response.json();
+        
+        // Force parse tokenomics to ensure fresh data
+        if (data.tokenomics && typeof data.tokenomics === 'string') {
+          try {
+            const parsed = JSON.parse(data.tokenomics);
+            // Re-stringify to ensure fresh object
+            data.tokenomics = JSON.stringify(parsed);
+          } catch (e) {
+            console.warn('Failed to re-parse tokenomics:', e);
+          }
+        }
+        
         setProject(data);
       } catch (err) {
         console.error('Failed to fetch project:', err);
@@ -412,7 +426,7 @@ export default function ProjectDetailsPage() {
             
             {/* Vesting Information */}
             <div className="bg-[#1a1a24] rounded-xl p-6 border border-gray-800 md:col-span-4">
-              <h3 className="text-xl text-white font-semibold mb-4 font-heading">Vesting Information</h3>
+              <h3 className="text-xl text-white font-semibold mb-4 font-heading">Vesting Schedule</h3>
               
               <div className="space-y-4">
                 {/* Allocation section */}
