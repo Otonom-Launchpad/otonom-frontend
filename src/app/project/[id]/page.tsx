@@ -146,8 +146,27 @@ export default function ProjectDetailsPage() {
     token_name: '', 
     token_symbol: '', 
     initial_supply: 0,
-    allocation: { team: '', investors: '', community: '' },
+    allocation: { team: '15%', investors: '20%', community: '25%', ecosystem: '15%', marketing: '10%', reserve: '15%' },
     vesting: { team: '', investors: '', community: '' }
+  };
+
+  // Parse percentage values for display
+  const parsePercentage = (value: string): string => {
+    // If it's already a percentage with % sign
+    if (value.includes('%')) {
+      return value;
+    }
+    // If it's a decimal (e.g., 0.15)
+    if (value.includes('.')) {
+      return `${parseFloat(value) * 100}%`;
+    }
+    // If it's a number without % sign
+    const num = parseInt(value, 10);
+    if (!isNaN(num)) {
+      return `${num}%`;
+    }
+    // Default fallback
+    return '0%';
   };
 
   // Calculate funding progress percentage
@@ -188,7 +207,7 @@ export default function ProjectDetailsPage() {
   return (
     <MainLayout>
       {/* Hero section with project image and gradient overlay */}
-      <div className="relative h-[650px] bg-black mt-20">
+      <div className="relative h-auto min-h-[650px] md:h-[650px] bg-black mt-20 pb-10 md:pb-0">
         {project.image_url && (
           <div className="absolute inset-0">
             <Image 
@@ -203,7 +222,7 @@ export default function ProjectDetailsPage() {
         )}
         
         <div className="container relative z-10 mx-auto px-4 h-full flex items-center">
-          <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 py-0">
+          <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 py-0 pt-16 md:pt-0">
             {/* Project info aligned left */}
             <div className="text-white md:col-span-8 flex flex-col justify-center mt-0 md:mt-0">
               <div className="flex items-center gap-3 mb-3">
@@ -324,29 +343,29 @@ export default function ProjectDetailsPage() {
               <h3 className="text-xl text-white font-semibold mb-4 font-heading">Token Information</h3>
               
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                   <span className="text-[#707E89] font-medium">Token Ticker</span>
                   <span className="text-white font-medium">{project.project_token_symbol}</span>
                 </div>
                 
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                   <span className="text-[#707E89] font-medium">Token Name</span>
                   <span className="text-white font-medium">{project.project_token_name}</span>
                 </div>
                 
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                   <span className="text-[#707E89] font-medium">Token Price</span>
                   <span className="text-white font-medium">${project.project_token_rate}</span>
                 </div>
                 
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                   <span className="text-[#707E89] font-medium">Initial Supply</span>
                   <span className="text-white font-medium">
                     {tokenomics.initial_supply?.toLocaleString() || 'TBA'}
                   </span>
                 </div>
                 
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                   <span className="text-[#707E89] font-medium">Network</span>
                   <span className="text-white font-medium">Solana</span>
                 </div>
@@ -396,24 +415,45 @@ export default function ProjectDetailsPage() {
               <h3 className="text-xl text-white font-semibold mb-4 font-heading">Vesting Information</h3>
               
               <div className="space-y-4">
+                {/* Allocation section */}
                 {Object.entries(tokenomics.allocation || {}).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center">
-                    <span className="text-[#707E89] font-medium capitalize">{key}</span>
-                    <span className="text-white font-medium">{value}</span>
+                  <div key={key} className="overflow-hidden">
+                    <table className="w-full table-fixed">
+                      <tbody>
+                        <tr>
+                          <td className="text-[#707E89] font-medium capitalize w-1/2">{key}</td>
+                          <td className="text-white font-medium text-right">{value}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 ))}
                 
                 <div className="border-t border-gray-800 my-2 pt-2"></div>
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-[#707E89] font-medium">Distribution</span>
-                  <span className="text-white font-medium">Linear</span>
+                {/* Distribution row */}
+                <div className="overflow-hidden">
+                  <table className="w-full table-fixed">
+                    <tbody>
+                      <tr>
+                        <td className="text-[#707E89] font-medium w-1/2">Distribution</td>
+                        <td className="text-white font-medium text-right">Linear</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 
+                {/* Vesting items */}
                 {Object.entries(tokenomics.vesting || {}).filter(([key]) => key !== 'distribution').map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center">
-                    <span className="text-[#707E89] font-medium capitalize">{key} Vesting</span>
-                    <span className="text-white font-medium">{value}</span>
+                  <div key={key} className="overflow-hidden">
+                    <table className="w-full table-fixed">
+                      <tbody>
+                        <tr>
+                          <td className="text-[#707E89] font-medium capitalize w-1/2">{key} Vesting</td>
+                          <td className="text-white font-medium text-right">{value}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 ))}
               </div>
@@ -590,44 +630,61 @@ export default function ProjectDetailsPage() {
                   </div>
                   
                   <div className="mb-10 mt-8">
-                    <h3 className="text-xl font-semibold mb-4 font-heading text-black">Token Allocation</h3>
-                    <div className="space-y-4">
-                      {Object.entries(tokenomics.allocation || {}).map(([key, value]) => (
-                        <div key={key} className="flex items-center">
-                          <div className="w-32 capitalize text-white">{key}</div>
-                          <div className="flex-1 mx-4">
-                            <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
+                    <h3 className="text-xl font-semibold mb-6 font-heading text-black">Token Allocation</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries(tokenomics.allocation || {}).map(([key, value]) => {
+                        const percentage = parsePercentage(value);
+                        const numericValue = parseInt(percentage, 10);
+                        return (
+                          <div key={key} className="bg-[#1a1a24] p-4 rounded-lg border border-gray-800">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-white font-medium capitalize">{key}</span>
+                              <span className="text-[#9d00ff] font-bold">{percentage}</span>
+                            </div>
+                            <div className="w-full bg-gray-800 h-6 rounded-full relative overflow-hidden">
                               <div 
-                                className="h-full bg-[#9d00ff]" 
-                                style={{ width: value }}
-                              ></div>
+                                className="absolute top-0 left-0 h-full bg-[#9d00ff]" 
+                                style={{ width: numericValue + '%' }}
+                              >
+                                <span className="sr-only">{percentage} allocated to {key}</span>
+                              </div>
                             </div>
                           </div>
-                          <div className="w-16 text-right text-white">{value}</div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                   
                   <div className="mb-24">
-                    <h3 className="text-xl font-semibold mb-3 font-heading text-black">Vesting Schedule</h3>
-                    <div className="rounded-lg overflow-hidden">
-                      <table className="min-w-full divide-y divide-gray-800">
-                        <thead className="bg-[#9d00ff]">
-                          <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Category</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Vesting Details</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-800">
-                          {Object.entries(tokenomics.vesting || {}).map(([key, value]) => (
-                            <tr key={key} className="bg-[#13131c]">
-                              <td className="px-6 py-4 whitespace-nowrap capitalize text-white">{key}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-300">{value}</td>
+                    <h3 className="text-xl font-semibold mb-6 font-heading text-black">Vesting Schedule</h3>
+                    
+                    {/* List-based approach for vesting schedule items */}
+                    <div className="space-y-4">
+                      {/* First distribution card */}
+                      <div className="bg-[#1a1a24] rounded-lg border border-gray-800 overflow-hidden">
+                        <table className="w-full table-fixed">
+                          <tbody>
+                            <tr>
+                              <td className="p-4 w-1/3 sm:w-1/4 text-gray-400 font-medium">Distribution</td>
+                              <td className="p-4 text-right text-white font-medium">Linear</td>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      {/* Remaining vesting items */}
+                      {Object.entries(tokenomics.vesting || {}).filter(([key]) => key !== 'distribution').map(([key, value]) => (
+                        <div key={key} className="bg-[#1a1a24] rounded-lg border border-gray-800 overflow-hidden">
+                          <table className="w-full table-fixed">
+                            <tbody>
+                              <tr>
+                                <td className="p-4 w-1/3 sm:w-1/4 text-gray-400 font-medium capitalize">{key}</td>
+                                <td className="p-4 text-right text-white font-medium">{value}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
