@@ -199,6 +199,20 @@ export async function GET(
       console.log(`Using fallback data for project: ${id}`);
       return NextResponse.json(fallbackProjects[id]);
     }
+    
+    // Map known UUIDs to fallback projects
+    const uuidMap: Record<string, keyof typeof fallbackProjects> = {
+      'aa9ef18d-1644-4af4-b1e8-f5f1d95eccf3': 'cortex-mind',
+      '1b4115dc-7280-4b90-8c23-0034fb05fdf1': 'ai-fusion',
+      'f10c5123-0f73-48c6-be9d-ca2478051916': 'neural-bridge'
+    };
+    
+    // Check if the ID is a known UUID
+    if (id in uuidMap) {
+      const fallbackId = uuidMap[id];
+      console.log(`Using fallback data for UUID: ${id} → ${fallbackId}`);
+      return NextResponse.json(fallbackProjects[fallbackId]);
+    }
 
     // Try to fetch the project by ID from Supabase
     const { data: project, error } = await supabase

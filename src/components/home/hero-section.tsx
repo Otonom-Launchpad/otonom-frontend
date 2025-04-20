@@ -4,18 +4,14 @@ import { Button } from '@/components/ui/button';
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex flex-col justify-start overflow-hidden bg-gradient-to-b from-gray-50 to-white pb-20">
+    <section className="h-screen w-full overflow-hidden bg-gradient-to-b from-gray-50 to-white flex flex-col items-center">
+      {/* Header spacing */}
+      <div className="h-24"></div>
       
-      {/* Explicit header spacing */}
-      <div className="h-20"></div> {/* Equal to header height */}
-      
-      {/* Extra top spacing */}
-      <div className="h-32 md:h-48 lg:h-64"></div>
-      
-      {/* Main content */}
-      <div className="container px-4 md:px-6 mx-auto relative z-10">
+      {/* Main content - properly spaced within hero section */}
+      <div className="container px-4 md:px-6 mx-auto relative z-10 flex-1 flex flex-col justify-center">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-          {/* Topline removed as requested */}
+          {/* Main heading */}
           
           <h1 className="text-4xl font-bold tracking-tight font-heading sm:text-5xl md:text-6xl mb-6">
             Next Generation of
