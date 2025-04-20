@@ -68,10 +68,10 @@ export function Header() {
               About
             </Link>
             <Link 
-              href="/faq" 
-              className={`text-sm font-medium ${pathname === '/faq' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              href="/dashboard-demo" 
+              className={`text-sm font-medium ${pathname === '/dashboard-demo' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
             >
-              FAQ
+              Dashboard Demo
             </Link>
           </div>
         </nav>
