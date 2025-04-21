@@ -1,6 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getWalletAddress, setWalletAddress } from '@/utils/walletStorage';
+import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from '@/utils/localStorage';
 
 // Simplified wallet context type for hackathon demo
 interface SimplifiedWalletContextType {
@@ -28,13 +30,13 @@ const SimplifiedWalletContext = createContext<SimplifiedWalletContextType>({
 export function SimplifiedWalletProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(getWalletAddress());
   const [balance, setBalance] = useState(0);
   const [tier, setTier] = useState(0);
 
   // Check localStorage on mount to restore connection state
   useEffect(() => {
-    const savedState = localStorage.getItem('hackathonWalletState');
+    const savedState = safeLocalStorageGet('hackathonWalletState');
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
@@ -48,17 +50,21 @@ export function SimplifiedWalletProvider({ children }: { children: ReactNode }) 
     }
   }, []);
 
-  // Save state to localStorage when it changes
+  // Save state 
+  useEffect(() => {
+    setWalletAddress(walletAddress);
+  }, [walletAddress]);
+
   useEffect(() => {
     if (isConnected && walletAddress) {
-      localStorage.setItem('hackathonWalletState', JSON.stringify({
+      safeLocalStorageSet('hackathonWalletState', JSON.stringify({
         isConnected,
         walletAddress,
         balance,
         tier
       }));
     } else if (!isConnected) {
-      localStorage.removeItem('hackathonWalletState');
+      safeLocalStorageRemove('hackathonWalletState');
     }
   }, [isConnected, walletAddress, balance, tier]);
 

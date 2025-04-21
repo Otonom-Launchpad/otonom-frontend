@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useCustomWalletModal } from '@/components/wallet/CustomWalletModalProvider';
 import { useAuth } from '@/hooks/useAuth';
+import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from '@/utils/localStorage';
 
 // Simple connect button component defined inline
 // Hackathon-ready simplified wallet button component
@@ -13,7 +14,7 @@ function ConnectButton({ compact = false }: { compact?: boolean }) {
   // Simple state management for wallet connection
   const [buttonState, setButtonState] = useState<'connect' | 'connecting' | 'guest'>(() => {
     // Check local storage for a saved connection state (for page reloads)
-    const savedState = localStorage.getItem('walletButtonState');
+    const savedState = safeLocalStorageGet('walletButtonState');
     return (savedState as 'connect' | 'connecting' | 'guest') || 'connect';
   });
   
@@ -29,7 +30,7 @@ function ConnectButton({ compact = false }: { compact?: boolean }) {
       setTimeout(() => {
         // Change to "Guest" for demo purposes
         setButtonState('guest');
-        localStorage.setItem('walletButtonState', 'guest');
+        safeLocalStorageSet('walletButtonState', 'guest');
       }, 1000); // Short delay to simulate connection
     };
     

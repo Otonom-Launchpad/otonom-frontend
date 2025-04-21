@@ -48,62 +48,20 @@ const fallbackProjects = [
   },
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const tier = searchParams.get('tier');
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    
-    // Start building the query
-    let query = supabase
+    const { data: projects, error } = await supabase
       .from('projects')
       .select('*');
-    
-    // Add filters if provided
-    if (status) {
-      query = query.eq('status', status);
-    }
-    
-    if (tier) {
-      query = query.lte('tier_requirement', parseInt(tier, 10));
-    }
-    
-    // Execute the query with limit and ordering
-    const { data, error } = await query
-      .order('launch_date', { ascending: false })
-      .limit(limit);
-    
+
     if (error) {
       console.error('Error fetching projects:', error);
-      console.log('Using fallback project data due to database error');
-      
-      // Use fallback data filtered by the same criteria
-      let filteredFallbackProjects = [...fallbackProjects];
-      
-      if (status) {
-        filteredFallbackProjects = filteredFallbackProjects.filter(p => p.status === status);
-      }
-      
-      if (tier) {
-        const tierNum = parseInt(tier, 10);
-        filteredFallbackProjects = filteredFallbackProjects.filter(p => p.tier_requirement <= tierNum);
-      }
-      
-      return NextResponse.json(filteredFallbackProjects.slice(0, limit));
+      return NextResponse.json(fallbackProjects, { status: 200 });
     }
-    
-    // If we got an empty array but database query succeeded, we might have RLS issues
-    // Use fallback data in this case as well
-    if (data && data.length === 0) {
-      console.log('No projects found in database, using fallback data');
-      return NextResponse.json(fallbackProjects.slice(0, limit));
-    }
-    
-    return NextResponse.json(data);
+
+    return NextResponse.json(projects, { status: 200 });
   } catch (error) {
     console.error('Unexpected error:', error);
-    // Return fallback data in case of unexpected errors
-    return NextResponse.json(fallbackProjects.slice(0, 10));
+    return NextResponse.json(fallbackProjects, { status: 200 });
   }
 }
