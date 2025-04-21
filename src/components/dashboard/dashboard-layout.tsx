@@ -95,7 +95,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           
           {/* Main content */}
           <div className="lg:col-span-9 col-span-1">
-            <div className="rounded-xl bg-white p-6 shadow-md">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
               {children}
             </div>
           </div>
