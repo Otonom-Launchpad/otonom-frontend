@@ -83,12 +83,15 @@ export function useAuth() {
   const connectWallet = useCallback(async () => {
     if (!publicKey) {
       setError('Wallet not connected');
-      return;
+      return { success: false };
     }
     
     try {
       setLoading(true);
       setError(null);
+      
+      // Log the connection attempt for debugging
+      console.log('Connecting wallet:', publicKey.toString());
       
       // Sign in or sign up with Supabase using wallet address only
       const { user: authUser, error: authError } = await signInWithWallet(
@@ -96,8 +99,9 @@ export function useAuth() {
       );
       
       if (authError) {
+        console.error('Auth error:', authError);
         setError(authError);
-        return;
+        return { success: false };
       }
       
       // Fetch user profile
@@ -108,14 +112,41 @@ export function useAuth() {
         .single();
         
       if (error) {
+        console.error('Error fetching user profile:', error);
         setError(`Error fetching user profile: ${error.message}`);
-        return;
+        return { success: false };
       }
       
-      setUser(data as AuthUser);
+      // Apply default tier and balance for testing if not set
+      let userData = data as AuthUser;
+      
+      // For hackathon demo, set default tier and balance if not set
+      if (!userData.tier) {
+        // Update user with default values for hackathon demo
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            tier: 1, // Default to Tier 1 for testing
+            ofund_balance: 1500, // Give some tokens for testing
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', authUser?.id);
+          
+        if (updateError) {
+          console.warn('Could not set default values:', updateError);
+        } else {
+          // Update local data
+          userData.tier = 1;
+          userData.ofund_balance = 1500;
+        }
+      }
+      
+      setUser(userData);
+      return { success: true };
     } catch (err) {
       console.error('Error connecting wallet:', err);
       setError(`Connection error: ${(err as Error).message}`);
+      return { success: false };
     } finally {
       setLoading(false);
     }

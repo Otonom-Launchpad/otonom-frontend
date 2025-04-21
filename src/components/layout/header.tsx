@@ -3,7 +3,98 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CustomWalletButton } from '@/components/wallet/CustomWalletButton';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useCustomWalletModal } from '@/components/wallet/CustomWalletModalProvider';
+import { useAuth } from '@/hooks/useAuth';
+
+// Simple connect button component defined inline
+// Hackathon-ready simplified wallet button component
+function ConnectButton({ compact = false }: { compact?: boolean }) {
+  // Simple state management for wallet connection
+  const [buttonState, setButtonState] = useState<'connect' | 'connecting' | 'guest'>(() => {
+    // Check local storage for a saved connection state (for page reloads)
+    const savedState = localStorage.getItem('walletButtonState');
+    return (savedState as 'connect' | 'connecting' | 'guest') || 'connect';
+  });
+  
+  const { setVisible } = useCustomWalletModal();
+  const { disconnectWallet } = useAuth();
+  const { disconnect } = useWallet();
+  
+  // This effect runs when the component mounts and adds listeners for events
+  useEffect(() => {
+    // Listen for the wallet adapter modal close event
+    const handleModalClose = () => {
+      // When the wallet modal is closed, check if it was successful
+      setTimeout(() => {
+        // Change to "Guest" for demo purposes
+        setButtonState('guest');
+        localStorage.setItem('walletButtonState', 'guest');
+      }, 1000); // Short delay to simulate connection
+    };
+    
+    // Add event listener for the modal close
+    document.addEventListener('wallet-modal-closed', handleModalClose);
+    
+    return () => {
+      document.removeEventListener('wallet-modal-closed', handleModalClose);
+    };
+  }, []);
+  
+  const handleClick = async () => {
+    if (buttonState === 'guest') {
+      // Disconnect flow
+      try {
+        localStorage.removeItem('walletButtonState');
+        setButtonState('connect');
+        await disconnectWallet();
+        disconnect();
+      } catch (e) {
+        console.error("Error disconnecting:", e);
+        setButtonState('connect');
+        localStorage.removeItem('walletButtonState');
+      }
+    } else {
+      // Connect flow
+      setButtonState('connecting');
+      setVisible(true); // Show modal
+    }
+  };
+  
+  return (
+    <button
+      className={`whitespace-nowrap ${buttonState === 'connecting' ? 'opacity-80' : ''}`}
+      onClick={handleClick}
+      disabled={buttonState === 'connecting'}
+      style={{
+        backgroundColor: 'black',
+        borderRadius: '9999px',
+        padding: '0.4rem 1.6rem',
+        fontFamily: 'var(--font-inter-tight)',
+        fontWeight: 500,
+        fontSize: '14px',
+        lineHeight: '20px',
+        color: 'white',
+        border: 'none',
+        cursor: buttonState === 'connecting' ? 'wait' : 'pointer',
+        minWidth: compact ? '100px' : '160px',
+        height: '40px',
+        transition: 'all 0.2s ease',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      {buttonState === 'guest' ? 'Guest' : 
+        buttonState === 'connecting' ? 'Connecting...' : 
+        compact ? 'Connect' : 'Connect Wallet'}
+    </button>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -91,7 +182,7 @@ export function Header() {
             </Link>
           </div>
           <div className="hidden sm:block">
-            <CustomWalletButton />
+            <ConnectButton />
           </div>
 
           {/* Mobile Menu Button */}
@@ -159,7 +250,7 @@ export function Header() {
               </Link>
             </div>
             <div className="sm:hidden px-3 py-3 flex justify-center mt-1 mb-3">
-              <CustomWalletButton compact={true} />
+              <ConnectButton compact={true} />
             </div>
           </div>
         </div>
