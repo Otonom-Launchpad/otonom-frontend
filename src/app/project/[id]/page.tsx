@@ -8,6 +8,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { parseMarkdown } from "@/lib/markdown-utils";
 import { notFound } from 'next/navigation';
+import { InvestButton } from '@/components/projects/invest-button';
 
 // Custom Progress component since the standard one is missing
 const Progress = ({ value = 0, className = '', indicatorClassName = '' }) => {
@@ -76,7 +77,7 @@ export default function ProjectDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'tokenomics'>('overview');
-  const [investmentAmount, setInvestmentAmount] = useState<number>(0);
+  const [investmentAmount, setInvestmentAmount] = useState<string>('0');
 
   // Version 2.0 - Force refresh of vesting tables
   useEffect(() => {
@@ -123,13 +124,14 @@ export default function ProjectDetailsPage() {
   }, [params.id]);
 
   const handleInvestmentAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    setInvestmentAmount(isNaN(value) ? 0 : value);
+    const cleanValue = e.target.value.replace(/[^0-9]/g, '');
+    setInvestmentAmount(cleanValue);
   };
 
   const calculateTokenAmount = () => {
-    if (!project || investmentAmount <= 0) return 0;
-    return investmentAmount / project.project_token_rate;
+    if (!project || !investmentAmount || investmentAmount === '0') return 0;
+    
+    return parseFloat(investmentAmount) / project.project_token_rate;
   };
 
   const formatDate = (dateString: string) => {
@@ -302,7 +304,21 @@ export default function ProjectDetailsPage() {
                       id="investment-amount"
                       value={investmentAmount}
                       onChange={handleInvestmentAmountChange}
-                      className="w-full pl-7 py-2 bg-transparent border-2 border-gray-500 rounded-md focus:outline-none focus:border-[#9d00ff] text-white text-right"
+                      onFocus={(e) => {
+                        e.target.placeholder = '';
+                        // If the value is 0, clear it on focus
+                        if (investmentAmount === '0') {
+                          setInvestmentAmount('');
+                        }
+                      }}
+                      onBlur={(e) => {
+                        e.target.placeholder = '0';
+                        // If empty, reset to 0
+                        if (investmentAmount === '') {
+                          setInvestmentAmount('0');
+                        }
+                      }}
+                      className="w-full pl-7 pr-3 py-2 bg-transparent border-2 border-gray-500 rounded-md focus:outline-none focus:border-[#9d00ff] text-white text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min="0"
                       step="100"
                       placeholder="0"
@@ -326,18 +342,34 @@ export default function ProjectDetailsPage() {
               <div className="mb-10 mt-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#9d00ff]"></div>
-                  <span className="text-white">Project Status: <span className="text-[#9d00ff] font-medium capitalize">{project.status}</span></span>
+                  <span className="text-white">Project Status: <span 
+                    style={{
+                      display: 'inline-block',
+                      backgroundColor: '#9d00ff33',
+                      color: '#9d00ff',
+                      borderRadius: '9999px',
+                      padding: '4px 12px',
+                      marginLeft: '4px',
+                      fontWeight: 500,
+                      fontSize: '0.875rem',
+                      textTransform: 'capitalize'
+                    }}
+                  >{project.status}</span></span>
                 </div>
                 
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#9d00ff]"></div>
-                  <span className="text-white">Sale Ends: <span className="text-[#9d00ff] font-medium">{formatDate(project.end_date)}</span></span>
+                  <span className="text-white">Sale Ends: <span className="bg-[#9d00ff]/10 text-[#9d00ff] font-medium px-2 py-0.5 rounded-full text-sm">{formatDate(project.end_date)}</span></span>
                 </div>
               </div>
               
-              <button className="w-full bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white py-3 h-auto rounded-[100px] text-base font-medium border-none cursor-pointer transition-all duration-200 shadow-lg">
-                Invest Now
-              </button>
+              <InvestButton
+                projectName={project.name}
+                amount={parseFloat(investmentAmount) || 0}
+                tokenSymbol={project.project_token_symbol}
+                tokenPrice={project.project_token_rate}
+                className="py-3 h-auto text-base font-medium"
+              />
               
               <div className="mt-4 text-xs text-center text-gray-400">
                 <div className="flex items-center justify-center gap-1">

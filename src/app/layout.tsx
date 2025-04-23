@@ -1,9 +1,11 @@
-import React from 'react';
 import type { Metadata } from "next";
+import { Inter, Inter_Tight } from 'next/font/google';
+import { Providers } from "./providers";
+
+// Import styles
 import "./globals.css";
 import "./wallet-modal-override.css";
-import { Providers } from "./providers";
-import { Inter, Inter_Tight } from 'next/font/google';
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const metadata: Metadata = {
   title: "Otonom Fund",
@@ -25,15 +27,13 @@ const interTight = Inter_Tight({
   weight: ['400', '500', '600', '700']
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${interTight.variable}`}>
-      <body className="antialiased font-sans">
-        <Providers>{children}</Providers>
+      <body className="antialiased font-sans bg-white">
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

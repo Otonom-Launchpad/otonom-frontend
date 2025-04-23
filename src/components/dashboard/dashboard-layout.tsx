@@ -2,16 +2,19 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout/main-layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { 
   LayoutDashboard, 
   Wallet, 
   LineChart, 
   Settings, 
-  User
+  User,
+  AlertCircle
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useCustomWalletModal } from '@/components/wallet/CustomWalletModalProvider';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,7 +22,9 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const wallet = useWallet();
+  const router = useRouter();
+  const { setVisible } = useCustomWalletModal();
 
   const navItems = [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -45,22 +50,32 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <span>Profile</span>
                 </h2>
                 
-                <div className="rounded-lg bg-gray-800 p-4">
-                  <p className="mb-1 text-sm text-gray-400">Connected as</p>
-                  <p className="mb-3 truncate font-medium">
-                    {user?.wallet_address ? `${user.wallet_address.slice(0, 6)}...${user.wallet_address.slice(-4)}` : '5KRwas...utQY'}
-                  </p>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Tier Level</span>
-                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">
-                      Tier {user?.tier || 2}
-                    </span>
+                {wallet.connected && wallet.publicKey ? (
+                  <div className="rounded-lg bg-gray-800 p-4">
+                    <p className="mb-1 text-sm text-gray-400">Connected as</p>
+                    <p className="mb-3 truncate font-medium">
+                      {`${wallet.publicKey.toString().slice(0, 6)}...${wallet.publicKey.toString().slice(-4)}`}
+                    </p>
+                    <p className="mb-1 text-xs text-gray-400">Tier Level</p>
+                    <p className="mb-3 text-sm font-medium text-purple-400">Tier 3</p>
+                    <p className="mb-1 text-xs text-gray-400">$OFUND Balance</p>
+                    <p className="text-sm font-medium">100,000</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">$OFUND Balance</span>
-                    <span className="font-medium">{user?.ofund_balance?.toLocaleString() || '12,500'}</span>
+                ) : (
+                  <div className="rounded-lg bg-gray-800 p-4">
+                    <div className="flex items-center mb-4 text-yellow-400">
+                      <AlertCircle size={16} className="mr-2" />
+                      <p className="text-sm">Wallet Not Connected</p>
+                    </div>
+                    <p className="text-sm mb-4">Connect your wallet to view your dashboard</p>
+                    <Button 
+                      onClick={() => setVisible(true)}
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full"
+                    >
+                      Connect Wallet
+                    </Button>
                   </div>
-                </div>
+                )}
               </div>
               
               {/* Navigation */}
@@ -87,7 +102,20 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </nav>
               
               {/* Disconnect button */}
-              <button className="flex w-full items-center justify-center rounded-full bg-white py-2.5 px-4 text-sm font-medium text-black hover:bg-gray-100 shadow-md transition duration-300 hover:shadow-lg">
+              <button 
+                className="flex w-full items-center justify-center rounded-full bg-white py-2.5 px-4 text-sm font-medium text-black hover:bg-gray-100 shadow-md transition duration-300 hover:shadow-lg"
+                onClick={() => {
+                  // Disconnect the wallet
+                  wallet.disconnect();
+                  
+                  // Clear any stored state
+                  localStorage.removeItem('walletButtonState');
+                  localStorage.removeItem('walletAddress');
+                  
+                  // Redirect to home page
+                  router.push('/');
+                }}
+              >
                 Disconnect Wallet
               </button>
             </div>

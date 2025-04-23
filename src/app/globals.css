@@ -23,6 +23,18 @@
 .wallet-adapter-button img {
   display: none !important;
 }
+
+/* Project status tag styling */
+.project-status-tag {
+  display: inline-block !important;
+  background-color: rgba(157, 0, 255, 0.2) !important;
+  color: rgb(157, 0, 255) !important;
+  border-radius: 9999px !important;
+  padding: 0.25rem 0.75rem !important;
+  margin-left: 0.25rem !important;
+  font-weight: 500 !important;
+  text-transform: capitalize !important;
+}
  
 @layer base {
   :root {

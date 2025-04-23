@@ -1,29 +1,41 @@
 'use client';
 
-import React, { ReactNode, useMemo } from 'react';
+import React from 'react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
-import { clusterApiUrl } from '@solana/web3.js';
-import { CustomWalletModalProvider } from '@/components/wallet/CustomWalletModalProvider';
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 
-// Import the wallet adapter styles
+// Important: Import Solana wallet adapter styles
+// This is critical for the wallet UI to render properly
 import '@solana/wallet-adapter-react-ui/styles.css';
 
-export function Providers({ children }: { children: ReactNode }) {
-  // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'
+import { CustomWalletModalProvider } from '@/components/wallet/CustomWalletModalProvider';
+import { clusterApiUrl } from '@solana/web3.js';
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  // Set network to devnet for proper blockchain integration in the hackathon
   const network = WalletAdapterNetwork.Devnet;
+  
+  // Get RPC URL with proper fallback to ensure reliable connection
+  const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(network);
+  
+  // Configure supported wallets for the best user experience
+  const wallets = [
+    new PhantomWalletAdapter(),
+    new SolflareWalletAdapter(),
+  ];
 
-  // You can also provide a custom RPC endpoint
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking
-  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
-
+  // Properly nest providers to ensure correct React context inheritance
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider endpoint={rpcUrl}>
       <WalletProvider wallets={wallets} autoConnect>
-        <CustomWalletModalProvider>{children}</CustomWalletModalProvider>
+        <CustomWalletModalProvider>
+          <WalletModalProvider>
+            {children}
+          </WalletModalProvider>
+        </CustomWalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

@@ -98,14 +98,30 @@ const CustomWalletModal: FC<{ visible: boolean; onClose: () => void }> = ({
       setConnecting(true);
       setError(null);
       
-      // Select the wallet
+      // Connect to the wallet
       select(wallet.adapter.name);
       
-      // Close the modal after a short delay to show connecting state
-      setTimeout(() => {
-        setConnecting(false);
+      // For wallets that are already connected, we can close immediately
+      if (wallet.adapter.connected) {
         onClose();
-      }, 600);
+        return;
+      }
+      
+      // For wallets in a ready state, we should give them time to connect
+      if (wallet.readyState === WalletReadyState.Installed || 
+          wallet.readyState === WalletReadyState.Loadable) {
+        // The wallet adapter will handle the connection
+        // We'll close the modal to let the user interact with their wallet
+        setTimeout(() => {
+          onClose();
+        }, 300);
+      } else {
+        // For wallets that need installation or are otherwise not ready
+        setTimeout(() => {
+          setConnecting(false);
+          onClose();
+        }, 600);
+      }
     } catch (err) {
       console.error('Error selecting wallet:', err);
       setError(`Could not connect to ${wallet.adapter.name}. Please try again.`);

@@ -1,43 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, TrendingUp, Wallet, Users } from 'lucide-react';
+import { ArrowRight, TrendingUp, Wallet, Users, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useCustomWalletModal } from '@/components/wallet/CustomWalletModalProvider';
+import { InvestmentsList } from '@/components/dashboard/investments-list';
+import { getUserInvestments } from '@/services/investment-service';
 
-// Sample data - in production, this would come from API
-const mockProjects = [
-  {
-    id: 'aa9ef18d-1644-4af4-b1e8-f5f1d95eccf3',
-    name: 'Cortex Mind',
-    invested: 2500,
-    currentValue: null, // Still in funding phase, no current value yet
-    roi: null, // No ROI until funded and listed
-    progress: 65, // Still in funding phase
-    status: 'funding',
-    expected_completion: '2025-05-15'
-  },
-  {
-    id: '1b4115dc-7280-4b90-8c23-0034fb05fdf1',
-    name: 'AI Fusion',
-    invested: 5000,
-    currentValue: 15650,
-    roi: 213,
-    progress: 100, // Fully funded and launched
-    status: 'active',
-    launch_date: '2025-03-10'
-  },
-  {
-    id: 'f10c5123-0f73-48c6-be9d-ca2478051916',
-    name: 'Neural Bridge',
-    invested: 1200,
-    currentValue: 16164,
-    roi: 1247,
-    progress: 100, // Fully funded and launched
-    status: 'active',
-    launch_date: '2025-02-28'
-  }
-];
+// Mock data no longer needed - using real on-chain data
 
 interface DashboardOverviewProps {
   user: {
@@ -50,23 +22,94 @@ interface DashboardOverviewProps {
 }
 
 export function DashboardOverview({ user }: DashboardOverviewProps) {
-  // Calculate total portfolio value
-  const totalInvested = mockProjects.reduce((sum, project) => sum + project.invested, 0);
-  const totalValue = mockProjects.reduce((sum, project) => sum + (project.currentValue || 0), 0);
-  const totalROI = totalValue > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0;
+  const wallet = useWallet();
+  const { setVisible } = useCustomWalletModal();
+  
+  // Ensure we have stable values even if wallet is not defined
+  const isConnected = wallet && wallet.connected && wallet.publicKey;
+  
+  // For consistency in the hackathon demo, always show Tier 3 and 100,000 OFUND
+  const ofundBalance = 100000;
+  const userTier = 3;
+  
+  // Investment portfolio values based on actual blockchain investments
+  const [investments, setInvestments] = useState<Array<{ projectName: string, amount: number, timestamp: number }>>([]);
+  const [totalInvested, setTotalInvested] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Calculate portfolio values based on actual investments
+  // For the hackathon demo, we're showing a 2x return on investments
+  const totalValue = totalInvested * 2; // Simulated 2x return for the demo
+  const totalROI = totalInvested > 0 ? 100 : 0; // 100% ROI for demo if any investments exist
+  
+  // Fetch REAL on-chain investments from Solana blockchain
+  useEffect(() => {
+    if (!wallet.connected || !wallet.publicKey) return;
+    
+    const fetchRealInvestments = async () => {
+      setIsLoading(true);
+      try {
+        console.log('Fetching REAL on-chain investments for dashboard...');
+        const userInvestments = await getUserInvestments(wallet);
+        console.log('Fetched blockchain investments:', userInvestments);
+        setInvestments(userInvestments);
+        
+        // Calculate total invested amount from actual on-chain investments
+        const total = userInvestments.reduce((sum, inv) => sum + inv.amount, 0);
+        console.log(`Total invested on blockchain: $${total}`);
+        setTotalInvested(total);
+      } catch (error) {
+        console.error('Error fetching blockchain investments for dashboard:', error);
+        if (error instanceof Error) {
+          console.error('Error details:', error.message);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchRealInvestments();
+    
+    // Refresh blockchain data every 15 seconds for real-time updates
+    const refreshInterval = setInterval(() => {
+      fetchRealInvestments();
+    }, 15000);
+    
+    return () => clearInterval(refreshInterval);
+  }, [wallet.connected, wallet.publicKey]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
+      {/* Overlay when wallet is not connected */}
+      {!isConnected && (
+        <div className="absolute inset-0 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-lg bg-black/30">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+            <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">Wallet Not Connected</h3>
+            <p className="text-gray-600 mb-6">Connect your wallet to view your investment dashboard and portfolio.</p>
+            <Button 
+              onClick={() => setVisible(true)}
+              className="bg-purple-600 hover:bg-purple-700 text-white w-full rounded-full"
+            >
+              Connect Wallet
+            </Button>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-500">
-          Welcome back, {user?.display_name || user?.wallet_address?.slice(0, 6) + '...' + user?.wallet_address?.slice(-4)}
+          Welcome back, {isConnected && wallet.publicKey 
+            ? `${wallet.publicKey.toString().slice(0, 6)}...${wallet.publicKey.toString().slice(-4)}` 
+            : 'Investor'}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Total Invested */}
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -78,11 +121,7 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
             </div>
           </div>
           <div className="mt-4 flex items-center space-x-2">
-            <span className="flex items-center text-sm font-medium text-green-600">
-              <TrendingUp size={16} className="mr-1" />
-              {totalROI.toFixed(2)}%
-            </span>
-            <span className="text-sm text-gray-500">from initial investment</span>
+            <span className="text-sm font-medium text-primary">On-chain investments</span>
           </div>
         </div>
 
@@ -109,7 +148,7 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Your Tier Level</p>
-              <h3 className="mt-1 text-2xl font-bold">Tier {user?.tier || 0}</h3>
+              <h3 className="mt-1 text-2xl font-bold">Tier {userTier}</h3>
             </div>
             <div className="rounded-full bg-primary/10 p-3 text-primary">
               <Users size={24} />
@@ -117,88 +156,22 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
           </div>
           <div className="mt-4 flex items-center space-x-2">
             <span className="flex items-center text-sm font-medium text-primary">
-              {user?.ofund_balance?.toLocaleString() || 0} $OFUND
+              {ofundBalance.toLocaleString()} $OFUND
             </span>
             <span className="text-sm text-gray-500">token balance</span>
           </div>
         </div>
       </div>
 
-      {/* Recent Investments */}
+      {/* On-chain Investments */}
       <div>
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Your Investments</h2>
+          <p className="text-sm text-gray-500">Real-time investment data from Solana blockchain</p>
         </div>
-        <div className="overflow-hidden rounded-lg border border-gray-200">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Project
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Invested
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Current Value
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  ROI
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Progress
-                </th>
-                <th scope="col" className="relative px-6 py-3">
-                  <span className="sr-only">View</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {mockProjects.map((project) => (
-                <tr key={project.id} className="hover:bg-gray-50">
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <div className="font-medium text-gray-900">{project.name}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    ${project.invested.toLocaleString()}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {project.currentValue ? `$${project.currentValue.toLocaleString()}` : '-'}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    {project.roi !== null ? (
-                      <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                        project.roi > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {project.roi > 0 ? '+' : ''}{project.roi}%
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    <div className="w-full rounded-full bg-gray-200">
-                      <div 
-                        className="h-2 rounded-full bg-primary" 
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                    {project.progress === 100 ? (
-                      <span className="mt-1 text-xs text-green-600">Launched {project.launch_date}</span>
-                    ) : (
-                      <span className="mt-1 text-xs text-gray-500">{project.progress}% Funded</span>
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    <Link href={`/project/${project.id}`} className="text-primary hover:text-primary/80">
-                      View Project
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        
+        {/* Investments list component with on-chain data */}
+        <InvestmentsList />
       </div>
     </div>
   );

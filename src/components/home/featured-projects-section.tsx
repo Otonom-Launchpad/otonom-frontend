@@ -166,22 +166,27 @@ export function FeaturedProjectsSection() {
             
             // Only update if we have adapted projects
             if (adaptedProjects.length > 0) {
-              setProjects(adaptedProjects);
+              // Ensure we only display 3 projects maximum
+              setProjects(adaptedProjects.slice(0, 3));
             } else {
               // If no adapted projects, use mock data as fallback
-              setProjects(featuredProjects as UiProject[]);
+              // Ensure we only display 3 projects maximum
+              setProjects((featuredProjects as UiProject[]).slice(0, 3));
             }
           } catch (err) {
             console.error('Error processing projects:', err);
-            setProjects(featuredProjects as UiProject[]); // Fallback to mock data
+            // Ensure we only display 3 projects maximum
+            setProjects((featuredProjects as UiProject[]).slice(0, 3)); // Fallback to mock data
           }
         } else {
           // If we don't get any projects from API, use mock data
-          setProjects(featuredProjects as UiProject[]);
+          // Ensure we only display 3 projects maximum
+          setProjects((featuredProjects as UiProject[]).slice(0, 3));
         }
       } catch (err) {
         console.error('Failed to fetch projects:', err);
-        setProjects(featuredProjects as UiProject[]); // Fallback to mock data
+        // Ensure we only display 3 projects maximum
+        setProjects((featuredProjects as UiProject[]).slice(0, 3)); // Fallback to mock data
       } finally {
         setLoading(false);
       }
