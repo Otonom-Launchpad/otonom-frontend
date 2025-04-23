@@ -13,6 +13,19 @@ import { initializeProgram } from '@/services/anchor-program';
 import { OFUND_MINT, PROGRAM_ID } from '@/lib/solana-config';
 import { getOfundBalance } from './token-service';
 
+// OFUND token has 9 decimals (standard for Solana SPL tokens)
+const OFUND_DECIMALS = 1_000_000_000;
+
+// Project mapping for the hackathon demo
+// In a production app, this would be dynamic and fetched from the blockchain
+const PROJECTS_MAP: Record<string, string> = {
+  // Mapping of project public keys to readable names
+  'AiEcoRBhKTX2s7gYkMafqiSvdNx3tnjac8xwtR9pLQFH': 'NeuroLeap AI',
+  'DTXTznNvmv3uV1KqKwMbCaZP3oNuWDxoBUEMWkpbLNLj': 'BioGenesis Protocol',
+  'F3CajaVdGe2XFdLeEZyWQvijGdJyLwfbVV2wSDY3N9Yr': 'Quantum Computing Solutions',
+  // Add more as needed for the demo
+};
+
 // Define interfaces for our program accounts
 interface Investment {
   project: PublicKey;
@@ -41,18 +54,30 @@ interface Project {
   isActive: boolean;
 }
 
-// Extend the Program type to include our account types
-interface OtonomProgram extends Program<Idl> {
-  account: {
-    userProfile: {
-      fetch(address: PublicKey): Promise<UserProfile>;
-    };
-    project: {
-      fetch(address: PublicKey): Promise<Project>;
-    };
-  };
-}
+// Use a more flexible type that allows any Program to be compatible
+type OtonomProgram = any;
 
+/**
+ * Helper function to find the user profile PDA for a given wallet
+ */
+const findUserProfilePDA = async (userPublicKey: PublicKey): Promise<PublicKey> => {
+  const [pda] = await PublicKey.findProgramAddress(
+    [Buffer.from('user-profile'), userPublicKey.toBuffer()],
+    PROGRAM_ID
+  );
+  return pda;
+};
+
+/**
+ * Helper function to find the project PDA for a given project name
+ */
+const findProjectPDA = async (projectName: string): Promise<PublicKey> => {
+  const [pda] = await PublicKey.findProgramAddress(
+    [Buffer.from('project'), Buffer.from(projectName)],
+    PROGRAM_ID
+  );
+  return pda;
+};
 
 /**
  * For testing - list of demo projects pre-deployed to devnet
@@ -131,13 +156,24 @@ export const ensureUserProfileExists = async (wallet: WalletContextState): Promi
       );
       
       // Find the mint authority PDA
-      const [mintAuthorityPda] = await PublicKey.findProgramAddress(
+      const [mintAuthorityPda, mintAuthorityBump] = await PublicKey.findProgramAddress(
         [Buffer.from('mint-authority'), OFUND_MINT.toBuffer()],
-        PROGRAM_ID // Using program ID as the seed for PDA
+        PROGRAM_ID
       );
       
       console.log('[PROFILE] User token account:', userTokenAccount.toString());
       console.log('[PROFILE] Mint authority PDA:', mintAuthorityPda.toString());
+      
+      // First, fetch the mint authority account to verify it exists
+      try {
+        // @ts-ignore - Working around type compatibility issues
+        const mintAuthorityInfo = await program.account.mintAuthority.fetch(mintAuthorityPda);
+        console.log('[PROFILE] Mint authority exists:', mintAuthorityInfo);
+      } catch (error) {
+        console.warn('[PROFILE] Could not fetch mint authority account, it may not exist yet:', error);
+        console.warn('[PROFILE] User registration might fail if mint authority is not initialized');
+        // We'll continue anyway and let the transaction fail with a helpful message if needed
+      }
       
       // Call the contract to register the user and airdrop tokens
       // @ts-ignore - Working around type compatibility issues
@@ -148,8 +184,8 @@ export const ensureUserProfileExists = async (wallet: WalletContextState): Promi
           userProfile: userProfilePda,
           mint: OFUND_MINT,
           userTokenAccount: userTokenAccount,
-          mintAuthority: mintAuthorityPda,
-          mintAuthorityPda: mintAuthorityPda,
+          mintAuthority: mintAuthorityPda,  // The account that holds authority data
+          mintAuthorityPda: mintAuthorityPda, // The PDA that signs (same address, different constraint)
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,
           rent: SYSVAR_RENT_PUBKEY
@@ -157,24 +193,13 @@ export const ensureUserProfileExists = async (wallet: WalletContextState): Promi
         .rpc();
       
       console.log('[PROFILE] User registered successfully with tx:', tx);
+      console.log(`[PROFILE] Transaction: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
       
       // Verify token balance after airdrop
       const balance = await getOfundBalance(wallet.publicKey);
       console.log('[PROFILE] New token balance:', balance);
       
       return true;
-          console.log('[PROFILE] User profile created successfully');
-          console.log(`[PROFILE] Transaction: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
-          return true;
-        } catch (createError) {
-          console.error('[PROFILE] Failed to create user profile:', createError);
-          throw createError;
-        }
-      } else {
-        // Some other error
-        console.error('[PROFILE] Error checking user profile:', fetchError);
-        throw fetchError;
-      }
     }
   } catch (error) {
     console.error('[PROFILE] Error in ensureUserProfileExists:', error);
@@ -229,8 +254,7 @@ export const investInProject = async (
     console.log('[INVEST] Finding user profile PDA...');
     let userProfilePda;
     try {
-      const userProfileResult = await findUserProfilePDA(wallet.publicKey);
-      userProfilePda = userProfileResult.pda;
+      userProfilePda = await findUserProfilePDA(wallet.publicKey);
       console.log(`[INVEST] User profile PDA: ${userProfilePda.toString()}`);
     } catch (pdaError) {
       console.error('[INVEST] Failed to find user profile PDA:', pdaError);
@@ -253,7 +277,7 @@ export const investInProject = async (
         projectPda = await findProjectPDA(projectName);
         // Get the project account data to obtain the vault address
         console.log('[INVEST] Fetching project account...');
-        const projectAccount = await program.account.project.fetch(projectPda);
+        const projectAccount = await (program as any).account.project.fetch(projectPda);
         projectVault = projectAccount.vault;
       }
       
@@ -390,10 +414,8 @@ export const getUserInvestmentInProject = async (
     }
     const program = programInstance as OtonomProgram;
     
-    // Find user profile PDA
-    const { pda: userProfilePda } = await findUserProfilePDA(wallet.publicKey);
-    
-    // Find project PDA
+    // Find relevant PDAs
+    const userProfilePda = await findUserProfilePDA(wallet.publicKey);
     const projectPda = await findProjectPDA(projectName);
     
     // Get user profile to check investments
@@ -401,41 +423,19 @@ export const getUserInvestmentInProject = async (
     
     // Find the investment for the specific project
     const investment = userProfile.investments.find(
-      inv => inv.project.equals(projectPda)
+      (inv: any) => inv.project.equals(projectPda)
     );
     
-    return investment ? Number(investment.amount) : 0;
+    return investment ? Number(investment.amount) / OFUND_DECIMALS : 0;
   } catch (error) {
     console.error('Error getting user investment:', error);
     return 0;
   }
 };
 
-/**
- * Get all projects the user has invested in
- * 
- * @param wallet Connected wallet
- * @returns Array of project investments
- */
-// Project mapping for the hackathon demo
-// In a production app, this would be dynamic and fetched from the blockchain
-const PROJECTS_MAP: Record<string, string> = {
-  // Mapping of project public keys to readable names
-  'AiEcoRBhKTX2s7gYkMafqiSvdNx3tnjac8xwtR9pLQFH': 'NeuroLeap AI',
-  'DTXTznNvmv3uV1KqKwMbCaZP3oNuWDxoBUEMWkpbLNLj': 'BioGenesis Protocol',
-  'F3CajaVdGe2XFdLeEZyWQvijGdJyLwfbVV2wSDY3N9Yr': 'Quantum Computing Solutions',
-  // Add more as needed for the demo
-};
-
-/**
- * Get all projects the user has invested in
- * 
- * @param wallet Connected wallet
- * @returns Array of project investments
- */
 export const getUserInvestments = async (
   wallet: WalletContextState
-): Promise<Array<{ projectName: string, amount: number, timestamp: number }>> => {
+): Promise<Array<{ projectName: string, amount: number, timestamp: string }>> => {
   if (!wallet.publicKey) {
     console.log('No wallet connected, returning empty investments');
     return [];
@@ -451,10 +451,10 @@ export const getUserInvestments = async (
     }
     const program = programInstance as OtonomProgram;
     
-    // Find user profile PDA
-    const { pda: userProfilePda } = await findUserProfilePDA(wallet.publicKey);
+    // Get user profile PDA
+    const userProfilePda = await findUserProfilePDA(wallet.publicKey);
+    console.log('[GET PORTFOLIO] User profile PDA:', userProfilePda.toString());
     
-    // Get user profile to check investments
     const userProfile = await program.account.userProfile.fetch(userProfilePda);
     
     console.log('User profile fetched successfully:', userProfile);

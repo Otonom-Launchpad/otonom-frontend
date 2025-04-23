@@ -5,7 +5,7 @@ export const SOLANA_NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet'
 
 // Program and token addresses as strings
 const PROGRAM_ID_STRING = process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || 'GAeLTwzvybwxaELbJrPcbjWBaNY5QLHurxXdoPN7jH6D';
-const TOKEN_MINT_STRING = process.env.NEXT_PUBLIC_OFUND_TOKEN_MINT || '9ct1toUJGsCzq3Ty9fZK9LRdCkQhSDaUPgqY9KQnsFm5';
+const TOKEN_MINT_STRING = process.env.NEXT_PUBLIC_OFUND_TOKEN_MINT || '4pV3umk8pY62ry8FsnMbQfJBYgpWnzWcC67UCMUevXLY';
 const SPL_TOKEN_PROGRAM_ID_STRING = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 
 // Validate and log the addresses we're using
