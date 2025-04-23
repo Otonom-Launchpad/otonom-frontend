@@ -1,10 +1,10 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import * as spl from '@solana/spl-token';
 import { WalletContextState } from '@solana/wallet-adapter-react';
-import { getSolanaConnection } from './anchor-program';
+import { OFUND_MINT, getConnection } from '@/lib/solana-config';
 
-// OFUND token mint address (from environment or hardcoded for hackathon)
-const OFUND_MINT = new PublicKey(process.env.NEXT_PUBLIC_OFUND_MINT || 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+// Use the centralized OFUND_MINT from solana-config.ts for consistency
+// This ensures we use the same token mint address across the entire application
 
 // Default airdrop amount for new users (100,000 OFUND)
 export const DEFAULT_OFUND_AMOUNT = 100000;
@@ -16,7 +16,7 @@ export const DEFAULT_OFUND_AMOUNT = 100000;
  */
 export async function getOfundBalance(walletAddress: PublicKey): Promise<number> {
   try {
-    const connection = getSolanaConnection();
+    const connection = getConnection();
     
     // Find the associated token account
     const tokenAccount = await spl.getAssociatedTokenAddress(
@@ -28,7 +28,7 @@ export async function getOfundBalance(walletAddress: PublicKey): Promise<number>
     try {
       // Try to get the token account info
       const tokenAccountInfo = await spl.getAccount(connection, tokenAccount);
-      return Number(tokenAccountInfo.amount) / Math.pow(10, 6); // Assuming 6 decimals
+      return Number(tokenAccountInfo.amount) / Math.pow(10, 9); // Using 9 decimals for our OFUND token
     } catch (err) {
       // If the account doesn't exist, the user has 0 tokens
       console.log('Token account not found, user likely has 0 OFUND');

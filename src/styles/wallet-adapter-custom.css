@@ -1,0 +1,151 @@
+/* Custom styles for wallet adapter to match Otonom design */
+
+/* Main modal container */
+.wallet-adapter-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 150ms linear;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  overflow-y: auto;
+}
+
+.wallet-adapter-modal.wallet-adapter-modal-fade-in {
+  opacity: 1;
+}
+
+/* Modal content wrapper */
+.wallet-adapter-modal-wrapper {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1050;
+  max-width: 400px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  margin: 100px auto;
+  padding: 24px;
+  font-family: var(--font-inter);
+}
+
+/* Button to close the modal */
+.wallet-adapter-modal-button-close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: #333;
+}
+
+/* Modal title styling */
+.wallet-adapter-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0 24px 24px;
+  text-align: center;
+  color: #333;
+  font-family: var(--font-inter-tight);
+}
+
+/* List of wallet options */
+.wallet-adapter-modal-list {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  list-style: none;
+}
+
+/* Individual wallet list item */
+.wallet-adapter-modal-list li {
+  margin-bottom: 8px;
+}
+
+/* Individual wallet button */
+.wallet-adapter-button {
+  background-color: black;
+  border: none;
+  border-radius: 9999px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-inter-tight);
+  font-size: 14px;
+  font-weight: 500;
+  height: 42px;
+  line-height: 42px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* Phantom wallet button */
+.wallet-adapter-button-phantom {
+  background-color: black;
+  color: white;
+}
+
+/* MetaMask wallet button */
+.wallet-adapter-button-metamask {
+  background-color: white;
+  color: black;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Main connect button in header */
+.custom-wallet-button {
+  height: 40px !important;
+  justify-content: center !important;
+  font-family: var(--font-inter-tight) !important;
+}
+
+/* Connected wallet styling */
+.wallet-adapter-button-trigger {
+  background-color: #9d00ff !important;
+}
+
+/* Wallet dropdown items */
+.wallet-adapter-dropdown-list {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 8px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1050;
+}
+
+.wallet-adapter-dropdown-list-item {
+  background: #f5f5f5;
+  border-radius: 8px;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  height: 32px;
+  line-height: 32px;
+  margin-top: 4px;
+  padding: 0 8px;
+  white-space: nowrap;
+  width: auto;
+}
+
+.wallet-adapter-dropdown-list-item:first-child {
+  margin-top: 0;
+}

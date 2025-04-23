@@ -32,7 +32,12 @@ export function Footer() {
               <ul className="space-y-2">
                 <li>
                   <Link href="https://www.otonom.fund/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-[#9d00ff] text-sm">
-                    Home
+                    Otonom Home
+                  </Link>
+                </li>
+                <li>
+                  <Link href="https://pad.otonom.fund/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-[#9d00ff] text-sm">
+                    Launchpad Home
                   </Link>
                 </li>
                 <li>

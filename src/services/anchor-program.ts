@@ -1,84 +1,139 @@
 /**
- * Specialized Anchor Program Integration for Hackathon
- * 
- * This module provides a reliable way to connect to Solana programs
- * using Anchor in a hackathon environment without type generation.
+ * Anchor Program Integration for Solana Hackathon
  */
 
-import { Connection, PublicKey } from '@solana/web3.js';
-import * as anchor from '@coral-xyz/anchor';
-import type { WalletContextState } from '@solana/wallet-adapter-react';
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { Program, AnchorProvider, BN, web3, Idl } from '@coral-xyz/anchor';
+import { WalletContextState } from '@solana/wallet-adapter-react';
 import { PROGRAM_ID } from '@/lib/solana-config';
-import idlData from '../lib/ofund-idl.json';
+import idlFile from '../lib/ofund-idl.json';
 
 // Connection configuration
-const COMMITMENT: anchor.web3.Commitment = 'confirmed';
+const COMMITMENT = 'confirmed';
+
+// Define the OtonomProgram type for use in our application
+export type OtonomProgram = Program;
 
 /**
- * Create a wallet adapter that Anchor can use
- */
-export const createAnchorWalletAdapter = (wallet: WalletContextState) => {
-  if (!wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) {
-    throw new Error('Wallet missing required methods');
-  }
-  
-  return {
-    publicKey: wallet.publicKey,
-    signTransaction: wallet.signTransaction,
-    signAllTransactions: wallet.signAllTransactions,
-  };
-};
-
-/**
- * Get a connection to the Solana network
- */
-export const getSolanaConnection = () => {
-  const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
-  return new Connection(rpcUrl, COMMITMENT);
-};
-
-/**
- * Initialize program for interacting with our smart contract
- * This function creates the necessary connections to interact with the Solana blockchain
- * 
- * We're deliberately using the local IDL file instead of fetching from chain,
- * as the on-chain IDL may not be uploaded correctly yet
+ * Initialize Anchor program for interacting with our smart contract
+ * @param wallet The connected wallet to use for transactions
+ * @returns Initialized Anchor program or undefined if initialization fails
  */
 export const initializeProgram = (wallet: WalletContextState) => {
   try {
     if (!wallet.publicKey) {
-      throw new Error('Wallet not connected');
+      console.error('[ANCHOR] No wallet public key available');
+      return undefined;
     }
 
-    const connection = getSolanaConnection();
-    const provider = new anchor.AnchorProvider(connection, createAnchorWalletAdapter(wallet), {
-      commitment: COMMITMENT,
-      preflightCommitment: COMMITMENT,
-    });
+    console.log('[ANCHOR] Initializing with wallet:', wallet.publicKey.toString());
+    console.log('[ANCHOR] Program ID:', PROGRAM_ID.toString());
 
-    // Use the imported IDL directly
-    const program = new anchor.Program(idlData as any, PROGRAM_ID, provider);
+    // Create connection to Solana network with proper configuration
+    const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl('devnet');
+    console.log('[ANCHOR] Using RPC endpoint:', rpcUrl);
+    const connection = new Connection(rpcUrl, { commitment: COMMITMENT, confirmTransactionInitialTimeout: 60000 });
 
-    console.log('Available program methods:', Object.keys(program.methods));
-    return program;
+    // Validate wallet methods exist
+    if (!wallet.signTransaction || !wallet.signAllTransactions) {
+      console.error('[ANCHOR] Wallet is missing required signing methods');
+      return undefined;
+    }
+
+    // Create a compatible wallet adapter for Anchor
+    const anchorWallet = {
+      publicKey: wallet.publicKey,
+      signTransaction: wallet.signTransaction,
+      signAllTransactions: wallet.signAllTransactions,
+    };
+
+    // Create Anchor provider with proper configuration
+    const provider = new AnchorProvider(
+      connection,
+      anchorWallet,
+      { commitment: COMMITMENT, preflightCommitment: COMMITMENT }
+    );
+
+    // Log IDL details for debugging
+    console.log('[ANCHOR] Using IDL:', idlFile.name, 'with', idlFile.instructions.length, 'instructions');
+    
+    try {
+      // Log important IDs for debugging
+      console.log('[ANCHOR] Program ID from config:', PROGRAM_ID.toBase58());
+      console.log('[ANCHOR] Program ID from IDL:', idlFile.metadata?.address || 'Not found in IDL');
+      
+      // Version compatibility fix - cast to any to bypass type checking
+      // This addresses the "_bn" error when using different Anchor versions
+      const AnchorProgram = Program as any;
+      const program = new AnchorProgram(
+        idlFile,    // IDL
+        PROGRAM_ID, // Program ID as PublicKey
+        provider     // AnchorProvider
+      );
+      
+      // Validate program was created correctly
+      if (!program || !program.methods) {
+        throw new Error('[ANCHOR] Program created but methods are not available');
+      }
+      
+      console.log('[ANCHOR] Program initialized successfully');
+      console.log('[ANCHOR] Available methods:', Object.keys(program.methods));
+      return program;
+      
+    } catch (programError) {
+      console.error('[ANCHOR] Error creating program instance:', programError);
+      if (programError instanceof Error) {
+        console.error('[ANCHOR] Error message:', programError.message);
+      }
+      return undefined;
+    }
+    
   } catch (error) {
-    console.error('Failed to initialize program:', error);
-    throw error;
+    console.error('[ANCHOR] Provider setup error:', error);
+    if (error instanceof Error) {
+      console.error('[ANCHOR] Error details:', error.message);
+      console.error('[ANCHOR] Stack trace:', error.stack);
+    }
+    return undefined;
   }
 };
 
 /**
  * Find PDA for user profile
- * @returns An object containing both the PDA and the bump seed
+ * @param userAddress The user's wallet address 
+ * @returns PDA and bump seed
  */
-export const findUserProfilePDA = async (userWallet: PublicKey) => {
-  const [pda, bump] = await PublicKey.findProgramAddress(
-    [
-      Buffer.from('user_profile'),
-      userWallet.toBuffer()
-    ],
-    PROGRAM_ID
-  );
-  
-  return { pda, bump };
+export const findUserProfilePDA = async (userAddress: PublicKey) => {
+  console.log('[PDA] Finding user profile PDA for address:', userAddress.toString());
+  try {
+    const [pda, bump] = await PublicKey.findProgramAddress(
+      [Buffer.from('user-profile'), userAddress.toBuffer()],
+      PROGRAM_ID
+    );
+    console.log('[PDA] Found user profile at:', pda.toString(), 'with bump:', bump);
+    return { pda, bump };
+  } catch (error) {
+    console.error('[PDA] Error finding user profile PDA:', error);
+    throw error;
+  }
+};
+
+/**
+ * Find PDA for a project
+ * @param projectName The name of the project
+ * @returns Project PDA
+ */
+export const findProjectPDA = async (projectName: string) => {
+  console.log('[PDA] Finding project PDA for:', projectName);
+  try {
+    const [pda] = await PublicKey.findProgramAddress(
+      [Buffer.from('project'), Buffer.from(projectName)],
+      PROGRAM_ID
+    );
+    console.log('[PDA] Found project at:', pda.toString());
+    return pda;
+  } catch (error) {
+    console.error('[PDA] Error finding project PDA:', error);
+    throw error;
+  }
 };

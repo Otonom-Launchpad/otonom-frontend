@@ -2,9 +2,9 @@ import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { web3 } from '@coral-xyz/anchor';
 import { signInWithWallet } from '@/lib/auth';
 import { Buffer } from 'buffer';
-import { PROGRAM_ID, TOKEN_PROGRAM_ID } from '@/lib/solana-config';
+import { PROGRAM_ID, TOKEN_PROGRAM_ID, OFUND_MINT, getConnection } from '@/lib/solana-config';
 import type { WalletContextState } from '@solana/wallet-adapter-react';
-import { initializeProgram, getSolanaConnection, findUserProfilePDA } from '@/services/anchor-program';
+import { initializeProgram, findUserProfilePDA } from '@/services/anchor-program';
 
 /**
  * Get program instance with connected wallet using our specialized adapter
@@ -54,7 +54,7 @@ export const autoRegisterUserIfNeeded = async (wallet: WalletContextState): Prom
       console.log('Checking if user profile exists on-chain...');
       
       // Get a connection instance
-      const connection = getSolanaConnection();
+      const connection = getConnection();
       
       // Try to fetch the user profile
       const accountInfo = await connection.getAccountInfo(userProfilePda);
@@ -66,8 +66,8 @@ export const autoRegisterUserIfNeeded = async (wallet: WalletContextState): Prom
         // Get the program
         const program = getProgram(wallet);
         
-        // Get mint from environment or use our deployed token
-        const mint = new PublicKey(process.env.NEXT_PUBLIC_OFUND_MINT || 'OFUN22S4u9yUyVFwBiRULxMXXcdGKepzFciJnQuXEwg5');
+        // Use the consistent OFUND_MINT from solana-config
+        const mint = OFUND_MINT;
         
         // Calculate mint authority PDA
         const [mintAuthorityPda] = await PublicKey.findProgramAddress(

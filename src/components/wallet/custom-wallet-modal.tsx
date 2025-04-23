@@ -12,7 +12,7 @@ export const CustomWalletModal: React.FC<WalletModalProps> = ({
   const { wallets, select } = useWallet();
   const { setVisible } = useWalletModal();
 
-  const handlePhantomClick = () => {
+  const handlePhantomClick = async () => {
     // Find the Phantom wallet adapter
     const phantomWallet = wallets.find(
       (wallet) => 
@@ -21,8 +21,24 @@ export const CustomWalletModal: React.FC<WalletModalProps> = ({
     );
     
     if (phantomWallet) {
-      select(phantomWallet.adapter.name);
-      setVisible(false);
+      try {
+        // First select the wallet adapter
+        select(phantomWallet.adapter.name);
+        
+        // Give a moment for selection to register
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Now try to connect explicitly
+        console.log('Connecting to Phantom wallet');
+        if (phantomWallet.adapter.connect) {
+          await phantomWallet.adapter.connect();
+        }
+        
+        // Close the modal
+        setVisible(false);
+      } catch (error) {
+        console.error('Failed to connect to Phantom:', error);
+      }
     }
   };
 

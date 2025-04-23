@@ -123,9 +123,27 @@ export default function ProjectDetailsPage() {
     }
   }, [params.id]);
 
+  // Handle changes to the investment amount input
   const handleInvestmentAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove non-numeric characters and leading zeros
     const cleanValue = e.target.value.replace(/[^0-9]/g, '');
-    setInvestmentAmount(cleanValue);
+    
+    // Enforce min/max limits for hackathon
+    if (cleanValue !== '') {
+      const numValue = parseInt(cleanValue, 10);
+      if (numValue > 100000) {
+        // Cap at 100,000 (maximum OFUND tokens available per user)
+        setInvestmentAmount('100000');
+        return;
+      }
+    }
+    
+    // Set the cleaned value
+    setInvestmentAmount(cleanValue === '' ? '0' : cleanValue);
+    
+    // Print debugging info
+    console.log(`Investment amount updated: $${cleanValue}`);
+    console.log(`Token amount at current price: ${parseFloat(cleanValue || '0') / (project?.project_token_rate || 1)} ${project?.project_token_symbol}`);
   };
 
   const calculateTokenAmount = () => {

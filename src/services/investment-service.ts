@@ -5,12 +5,13 @@
  * For the Solana Breakout Hackathon
  */
 
-import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { Program, BN, web3, Idl } from '@coral-xyz/anchor';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { WalletContextState } from '@solana/wallet-adapter-react';
-import { PROGRAM_ID, TOKEN_PROGRAM_ID } from '@/lib/solana-config';
-import { initializeProgram, findUserProfilePDA } from '@/services/anchor-program';
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { BN } from '@coral-xyz/anchor';
+import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
+import { initializeProgram } from '@/services/anchor-program';
+import { OFUND_MINT, PROGRAM_ID } from '@/lib/solana-config';
+import { getOfundBalance } from './token-service';
 
 // Define interfaces for our program accounts
 interface Investment {
@@ -53,45 +54,6 @@ interface OtonomProgram extends Program<Idl> {
 }
 
 
-// Mint address for OFUND token on devnet
-// For hackathon demo, we're using a fixed devnet token address
-const OFUND_MINT = new PublicKey(
-  process.env.NEXT_PUBLIC_OFUND_MINT || '9ct1toUJGsCzq3Ty9fZK9LRdCkQhSDaUPgqY9KQnsFm5'
-);
-
-/**
- * Find a Project PDA by project name
- * @param projectName The name of the project
- * @returns The project PDA
- */
-export const findProjectPDA = async (projectName: string): Promise<PublicKey> => {
-  try {
-    // The seed in the Solana program uses 'b"project"' (with quotes)
-    // so we need to match the exact format from the Rust code
-    const [pda] = await PublicKey.findProgramAddress(
-      [
-        Buffer.from('project'),
-        Buffer.from(projectName)
-      ],
-      PROGRAM_ID
-    );
-    
-    console.log(`Found project PDA for "${projectName}": ${pda.toString()}`);
-    return pda;
-  } catch (error) {
-    console.error(`Error finding project PDA for "${projectName}":`, error);
-    throw error;
-  }
-};
-
-/**
- * Invest in a project using OFUND tokens
- * 
- * @param wallet Connected wallet from Phantom
- * @param projectName Name of the project to invest in
- * @param amount Amount to invest in USD (will be converted to OFUND tokens)
- * @returns Transaction signature
- */
 /**
  * For testing - list of demo projects pre-deployed to devnet
  * This helps the hackathon judges invest in existing projects
@@ -109,96 +71,224 @@ const DEMO_PROJECTS: Record<string, { publicKey: string, vault: string }> = {
 };
 
 /**
+ * Invest in a project using OFUND tokens
+ * 
+ * @param wallet Connected wallet from Phantom
+ * @param projectName Name of the project to invest in
+ * @param amount Amount to invest in USD (will be converted to OFUND tokens)
+ * @returns Transaction signature
+ */
+
+/**
  * Real on-chain investment function for Solana hackathon judges to verify
  * This creates an actual blockchain transaction on Solana devnet
  */
+/**
+ * Ensure user profile exists on-chain
+ * This should be called before any investment to make sure the user account is created
+ */
+export const ensureUserProfileExists = async (wallet: WalletContextState): Promise<boolean> => {
+  if (!wallet.publicKey || !wallet.signTransaction) {
+    console.error('[PROFILE] Wallet not connected');
+    return false;
+  }
+
+  try {
+    console.log('[PROFILE] Checking if user profile exists...');
+    
+    if (!wallet.publicKey) {
+      console.error('[PROFILE] Wallet not connected');
+      return false;
+    }
+
+    // Find user profile PDA
+    const [userProfilePda, bump] = await PublicKey.findProgramAddress(
+      [Buffer.from('user-profile'), wallet.publicKey.toBuffer()],
+      PROGRAM_ID // Using program ID as the seed for PDA
+    );
+    console.log('[PROFILE] User profile PDA:', userProfilePda.toString());
+    
+    // Initialize program using our compatibility layer
+    const program = initializeProgram(wallet);
+    if (!program) {
+      console.error('[PROFILE] Failed to initialize program');
+      return false;
+    }
+    
+    try {
+      // Check if the user profile already exists by trying to fetch the account
+      // @ts-ignore - Working around type compatibility issues
+      const userProfile = await program.account.userProfile.fetch(userProfilePda);
+      console.log('[PROFILE] User profile already exists:', userProfile);
+      return true;
+    } catch (error) {
+      console.log('[PROFILE] User profile does not exist, creating...');
+
+      // Get or create the user's token account
+      const userTokenAccount = await getAssociatedTokenAddress(
+        OFUND_MINT,
+        wallet.publicKey
+      );
+      
+      // Find the mint authority PDA
+      const [mintAuthorityPda] = await PublicKey.findProgramAddress(
+        [Buffer.from('mint-authority'), OFUND_MINT.toBuffer()],
+        PROGRAM_ID // Using program ID as the seed for PDA
+      );
+      
+      console.log('[PROFILE] User token account:', userTokenAccount.toString());
+      console.log('[PROFILE] Mint authority PDA:', mintAuthorityPda.toString());
+      
+      // Call the contract to register the user and airdrop tokens
+      // @ts-ignore - Working around type compatibility issues
+      const tx = await program.methods
+        .registerUser(bump)
+        .accounts({
+          user: wallet.publicKey,
+          userProfile: userProfilePda,
+          mint: OFUND_MINT,
+          userTokenAccount: userTokenAccount,
+          mintAuthority: mintAuthorityPda,
+          mintAuthorityPda: mintAuthorityPda,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY
+        })
+        .rpc();
+      
+      console.log('[PROFILE] User registered successfully with tx:', tx);
+      
+      // Verify token balance after airdrop
+      const balance = await getOfundBalance(wallet.publicKey);
+      console.log('[PROFILE] New token balance:', balance);
+      
+      return true;
+          console.log('[PROFILE] User profile created successfully');
+          console.log(`[PROFILE] Transaction: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+          return true;
+        } catch (createError) {
+          console.error('[PROFILE] Failed to create user profile:', createError);
+          throw createError;
+        }
+      } else {
+        // Some other error
+        console.error('[PROFILE] Error checking user profile:', fetchError);
+        throw fetchError;
+      }
+    }
+  } catch (error) {
+    console.error('[PROFILE] Error in ensureUserProfileExists:', error);
+    return false;
+  }
+};
+
 export const investInProject = async (
   wallet: WalletContextState,
   projectName: string,
   amount: number
 ): Promise<string> => {
+  // Initial validation
   if (!wallet.publicKey || !wallet.signTransaction) {
+    console.error('Wallet validation failed: not connected or missing required methods');
     throw new Error('Wallet not connected');
   }
 
   try {
-    console.log(`Starting REAL on-chain investment in "${projectName}" for $${amount}...`);
+    console.log(`[INVEST] Starting REAL on-chain investment in "${projectName}" for $${amount}...`);
+    console.log(`[INVEST] Using wallet: ${wallet.publicKey.toString()}`);
+    
+    // Verify wallet connection status
+    if (!wallet.connected) {
+      console.error('Wallet shows as connected in state but wallet.connected is false');
+      throw new Error('Wallet connection inconsistent state. Please reconnect.');
+    }
+    
+    // Check for environment variables
+    console.log(`[INVEST] Using Solana RPC URL: ${process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'default: https://api.devnet.solana.com'}`);
+    console.log(`[INVEST] Using program ID: ${PROGRAM_ID.toString()}`);
+    console.log(`[INVEST] Using OFUND mint: ${OFUND_MINT.toString()}`);
     
     // Initialize the program with our proper IDL
-    console.log('Initializing Anchor program...');
-    const programInstance = initializeProgram(wallet);
-    if (!programInstance) {
-      throw new Error('Failed to initialize Solana program: program is undefined');
+    console.log('[INVEST] Initializing Anchor program...');
+    let programInstance;
+    try {
+      programInstance = initializeProgram(wallet);
+      if (!programInstance) {
+        throw new Error('Program is undefined after initialization');
+      }
+    } catch (programError) {
+      console.error('[INVEST] Program initialization failed:', programError);
+      throw new Error(`Failed to initialize Solana program: ${programError instanceof Error ? programError.message : String(programError)}`);
     }
+    
     const program = programInstance as OtonomProgram;
+    console.log('[INVEST] Program initialized successfully');
+    console.log('[INVEST] Available program methods:', Object.keys(program.methods));
     
     // Find user profile PDA
-    console.log('Finding user profile PDA...');
-    const { pda: userProfilePda } = await findUserProfilePDA(wallet.publicKey);
-    console.log(`User profile PDA: ${userProfilePda.toString()}`);
+    console.log('[INVEST] Finding user profile PDA...');
+    let userProfilePda;
+    try {
+      const userProfileResult = await findUserProfilePDA(wallet.publicKey);
+      userProfilePda = userProfileResult.pda;
+      console.log(`[INVEST] User profile PDA: ${userProfilePda.toString()}`);
+    } catch (pdaError) {
+      console.error('[INVEST] Failed to find user profile PDA:', pdaError);
+      throw new Error(`User profile lookup failed: ${pdaError instanceof Error ? pdaError.message : String(pdaError)}`);
+    }
     
     // For the hackathon demo, use our live deployed project PDAs
     let projectPda: PublicKey;
     let projectVault: PublicKey;
     
-    // Use hardcoded demo project for hackathon judging
-    if (DEMO_PROJECTS[projectName]) {
-      console.log(`Using demo project data for "${projectName}"`);
-      projectPda = new PublicKey(DEMO_PROJECTS[projectName].publicKey);
-      projectVault = new PublicKey(DEMO_PROJECTS[projectName].vault);
-    } else {
-      console.log(`Finding project PDA for "${projectName}"`);
-      // For dynamic projects, compute the PDA
-      projectPda = await findProjectPDA(projectName);
-      // Get the project account data to obtain the vault address
-      console.log('Fetching project account...');
-      const projectAccount = await program.account.project.fetch(projectPda);
-      projectVault = projectAccount.vault;
+    try {
+      // Use hardcoded demo project for hackathon judging
+      if (DEMO_PROJECTS[projectName]) {
+        console.log(`[INVEST] Using demo project data for "${projectName}"`);
+        projectPda = new PublicKey(DEMO_PROJECTS[projectName].publicKey);
+        projectVault = new PublicKey(DEMO_PROJECTS[projectName].vault);
+      } else {
+        console.log(`[INVEST] Finding project PDA for "${projectName}"`);
+        // For dynamic projects, compute the PDA
+        projectPda = await findProjectPDA(projectName);
+        // Get the project account data to obtain the vault address
+        console.log('[INVEST] Fetching project account...');
+        const projectAccount = await program.account.project.fetch(projectPda);
+        projectVault = projectAccount.vault;
+      }
+      
+      console.log(`[INVEST] Project PDA: ${projectPda.toString()}`);
+      console.log(`[INVEST] Project vault: ${projectVault.toString()}`);
+    } catch (projectError) {
+      console.error('[INVEST] Project data retrieval failed:', projectError);
+      throw new Error(`Project data retrieval failed: ${projectError instanceof Error ? projectError.message : String(projectError)}`);
     }
     
-    console.log(`Project PDA: ${projectPda.toString()}`);
-    console.log(`Project vault: ${projectVault.toString()}`);
-    
     // Find investor's OFUND token account
-    console.log('Finding investor token account...');
-    const investorTokenAccount = await getAssociatedTokenAddress(
-      OFUND_MINT,
-      wallet.publicKey
-    );
-    console.log(`Investor token account: ${investorTokenAccount.toString()}`);
+    console.log('[INVEST] Finding investor token account...');
+    let investorTokenAccount;
+    try {
+      investorTokenAccount = await getAssociatedTokenAddress(
+        OFUND_MINT,
+        wallet.publicKey
+      );
+      console.log(`[INVEST] Investor token account: ${investorTokenAccount.toString()}`);
+    } catch (tokenError) {
+      console.error('[INVEST] Failed to find investor token account:', tokenError);
+      throw new Error(`Token account lookup failed: ${tokenError instanceof Error ? tokenError.message : String(tokenError)}`);
+    }
     
     // Convert USD amount to OFUND tokens (1:1 ratio for simplicity in hackathon)
-    // For the hackathon, we're intentionally making each OFUND token = $1 USD
-    // But on-chain, the value is actually in lamports (like Solana's smallest unit)
-    // So we convert the USD amount to OFUND tokens first (1:1 ratio)
-    // Then if needed, adjust for any precision issues 
-    const ofundAmount = new BN(amount);
+    // Apply 9 decimals for our new OFUND token
+    const ofundAmount = new BN(amount * Math.pow(10, 9));
     
-    // Add explicit debugging to help judges trace token flow
-    console.log(`Investment amount: $${amount} USD = ${ofundAmount.toString()} OFUND tokens`);
-    console.log(`User has 100,000 OFUND tokens available for investment`);
+    console.log(`[INVEST] Investment amount: $${amount} USD = ${ofundAmount.toString()} OFUND tokens`);
     
     // Make sure the amount is valid
     if (amount > 100000) {
       throw new Error('Investment amount exceeds available OFUND tokens (100,000 max)');
-    }
-    
-    console.log('Preparing on-chain transaction with accounts:', {
-      investor: wallet.publicKey.toString(),
-      userProfile: userProfilePda.toString(),
-      project: projectPda.toString(),
-      investorTokenAccount: investorTokenAccount.toString(),
-      projectVault: projectVault.toString(),
-      mint: OFUND_MINT.toString(),
-      tokenProgram: TOKEN_PROGRAM_ID.toString(),
-      systemProgram: SystemProgram.programId.toString()
-    });
-    
-    console.log('Executing on-chain transaction...');
-    
-    // Basic checking for program existence
-    if (!program) {
-      throw new Error('Program not properly initialized');
+    } else if (amount <= 0) {
+      throw new Error('Investment amount must be greater than 0');
     }
     
     // Set up the accounts structure according to the program's expectations
@@ -213,26 +303,64 @@ export const investInProject = async (
       systemProgram: SystemProgram.programId,
     };
     
-    console.log('Using accounts:', accountsConfig);
+    console.log('[INVEST] Using accounts configuration:', {
+      investor: wallet.publicKey.toString(),
+      userProfile: userProfilePda.toString(),
+      project: projectPda.toString(),
+      investorTokenAccount: investorTokenAccount.toString(),
+      projectVault: projectVault.toString(),
+      mint: OFUND_MINT.toString(),
+      tokenProgram: TOKEN_PROGRAM_ID.toString(),
+      systemProgram: SystemProgram.programId.toString()
+    });
     
     // Execute the investment transaction using the standard Anchor pattern
-    const tx = await program.methods
-      .investInProject(ofundAmount)
-      .accounts(accountsConfig)
-      .rpc();
-    
-    // Transaction was sent successfully
-    
-    console.log('On-chain investment transaction successful:', tx);
-    console.log(`View on explorer: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+    console.log('[INVEST] Preparing to execute investment transaction...');
+    let tx;
+    try {
+      // Log the method being called
+      console.log('[INVEST] Calling program.methods.investInProject with amount:', ofundAmount.toString());
+      
+      // Perform the actual on-chain transaction
+      tx = await program.methods
+        .investInProject(ofundAmount)
+        .accounts(accountsConfig)
+        .rpc();
+      
+      console.log('[INVEST] On-chain investment transaction successful!');
+      console.log(`[INVEST] Transaction signature: ${tx}`);
+      console.log(`[INVEST] View on explorer: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+    } catch (txError) {
+      console.error('[INVEST] Transaction execution failed:', txError);
+      
+      // More detailed error handling for transaction failures
+      if (txError instanceof Error) {
+        // Look for specific Anchor or Solana error patterns
+        const errorMsg = txError.message;
+        if (errorMsg.includes('custom program error: 0x')) {
+          console.error('[INVEST] Detected Anchor program error code in error message');
+        } else if (errorMsg.includes('Blockhash not found')) {
+          console.error('[INVEST] Network issue: Blockhash not found. RPC node may be having issues.');
+        } else if (errorMsg.includes('TokenAccount') || errorMsg.includes('Account not found')) {
+          console.error('[INVEST] Token account may not exist or has no OFUND tokens.');
+        }
+      }
+      
+      throw new Error(`Transaction failed: ${txError instanceof Error ? txError.message : String(txError)}`);
+    }
     
     return tx;
   } catch (error: unknown) {
-    console.error('Error making on-chain investment:', error);
+    console.error('[INVEST] Error making on-chain investment:', error);
+    
+    // Enhanced error logging
     if (error instanceof Error) {
-      console.error('Error details:', error.message);
-      console.error('Stack trace:', error.stack);
+      console.error('[INVEST] Error details:', error.message);
+      console.error('[INVEST] Stack trace:', error.stack);
+    } else {
+      console.error('[INVEST] Unknown error type:', typeof error);
     }
+    
     throw new Error(`Failed to invest in project: ${error instanceof Error ? error.message : String(error)}`);
   }
 };

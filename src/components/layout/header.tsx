@@ -8,93 +8,22 @@ import { useCustomWalletModal } from '@/components/wallet/CustomWalletModalProvi
 import { useAuth } from '@/hooks/useAuth';
 import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from '@/utils/localStorage';
 
-// Simple connect button component defined inline
-// Hackathon-ready simplified wallet button component
+// Import WalletMultiButton for standard wallet connection
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+
+// Simple wallet connection button using the standard WalletMultiButton
 function ConnectButton({ compact = false }: { compact?: boolean }) {
-  // Simple state management for wallet connection
-  const [buttonState, setButtonState] = useState<'connect' | 'connecting' | 'guest'>(() => {
-    // Check local storage for a saved connection state (for page reloads)
-    const savedState = safeLocalStorageGet('walletButtonState');
-    return (savedState as 'connect' | 'connecting' | 'guest') || 'connect';
-  });
-  
-  const { setVisible } = useCustomWalletModal();
-  const { disconnectWallet } = useAuth();
-  const { disconnect } = useWallet();
-  
-  // This effect runs when the component mounts and adds listeners for events
-  useEffect(() => {
-    // Listen for the wallet adapter modal close event
-    const handleModalClose = () => {
-      // When the wallet modal is closed, check if it was successful
-      setTimeout(() => {
-        // Change to "Guest" for demo purposes
-        setButtonState('guest');
-        safeLocalStorageSet('walletButtonState', 'guest');
-      }, 1000); // Short delay to simulate connection
-    };
-    
-    // Add event listener for the modal close
-    document.addEventListener('wallet-modal-closed', handleModalClose);
-    
-    return () => {
-      document.removeEventListener('wallet-modal-closed', handleModalClose);
-    };
-  }, []);
-  
-  const handleClick = async () => {
-    if (buttonState === 'guest') {
-      // Disconnect flow
-      try {
-        localStorage.removeItem('walletButtonState');
-        setButtonState('connect');
-        await disconnectWallet();
-        disconnect();
-      } catch (e) {
-        console.error("Error disconnecting:", e);
-        setButtonState('connect');
-        localStorage.removeItem('walletButtonState');
-      }
-    } else {
-      // Connect flow
-      setButtonState('connecting');
-      setVisible(true); // Show modal
-    }
-  };
-  
   return (
-    <button
-      className={`whitespace-nowrap ${buttonState === 'connecting' ? 'opacity-80' : ''}`}
-      onClick={handleClick}
-      disabled={buttonState === 'connecting'}
+    <WalletMultiButton 
+      className="rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
       style={{
-        backgroundColor: 'black',
-        borderRadius: '9999px',
-        padding: '0.4rem 1.6rem',
-        fontFamily: 'var(--font-inter-tight)',
-        fontWeight: 500,
-        fontSize: '14px',
-        lineHeight: '20px',
-        color: 'white',
-        border: 'none',
-        cursor: buttonState === 'connecting' ? 'wait' : 'pointer',
         minWidth: compact ? '100px' : '160px',
         height: '40px',
-        transition: 'all 0.2s ease',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        textAlign: 'center',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        fontSize: '14px',
+        fontFamily: 'var(--font-inter-tight)',
       }}
-    >
-      {buttonState === 'guest' ? 'Guest' : 
-        buttonState === 'connecting' ? 'Connecting...' : 
-        compact ? 'Connect' : 'Connect Wallet'}
-    </button>
-  );
+    />
+  )
 }
 
 export function Header() {
@@ -142,28 +71,16 @@ export function Header() {
         <nav className="hidden md:flex items-center justify-center flex-1">
           <div className="flex space-x-8">
             <Link 
-              href="/projects" 
-              className={`text-sm font-medium ${pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              href="/" 
+              className={`text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
             >
               Projects
             </Link>
             <Link 
-              href="/explore" 
-              className={`text-sm font-medium ${pathname === '/explore' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              href="/dashboard" 
+              className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
             >
-              Explore
-            </Link>
-            <Link 
-              href="/about" 
-              className={`text-sm font-medium ${pathname === '/about' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
-            >
-              About
-            </Link>
-            <Link 
-              href="/dashboard-demo" 
-              className={`text-sm font-medium ${pathname === '/dashboard-demo' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
-            >
-              Dashboard Demo
+              My Dashboard
             </Link>
           </div>
         </nav>
@@ -210,32 +127,18 @@ export function Header() {
         <div className="md:hidden bg-white shadow-lg absolute w-full z-50">
           <div className="px-4 pt-2 pb-4 space-y-1 sm:px-6">
             <Link 
-              href="/projects"
-              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              href="/"
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Projects
             </Link>
             <Link 
-              href="/explore"
-              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/explore' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              href="/dashboard"
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/dashboard' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Explore
-            </Link>
-            <Link 
-              href="/about"
-              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/about' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link 
-              href="/faq"
-              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/faq' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              FAQ
+              My Dashboard
             </Link>
             <div className="flex justify-center px-3 py-5 mt-2 mb-2">
               <Link href="https://www.linkedin.com/company/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
