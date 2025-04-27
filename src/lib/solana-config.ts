@@ -4,8 +4,16 @@ import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
 export const SOLANA_NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
 
 // Program and token addresses as strings
+// NOTE: These are PUBLIC on-chain addresses, NOT secrets
+// They can be viewed by anyone on Solana Explorer: https://explorer.solana.com
+
+// Public Program ID - Otonom Fund smart contract address on Solana
 const PROGRAM_ID_STRING = process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || 'EPwpbJYL6H3u3VDMShoJ6XFtdPQ9FJAFpEpjyMH7UADN';
+
+// Public Token Mint - OFUND token mint address on Solana
 const TOKEN_MINT_STRING = process.env.NEXT_PUBLIC_OFUND_TOKEN_MINT || '4pV3umk8pY62ry8FsnMbQfJBYgpWnzWcC67UCMUevXLY';
+
+// Public SPL Token Program ID - official Solana token program
 const SPL_TOKEN_PROGRAM_ID_STRING = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 
 // Validate and log the addresses we're using
