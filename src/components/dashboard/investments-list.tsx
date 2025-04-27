@@ -29,7 +29,14 @@ export function InvestmentsList() {
         console.log('Fetching REAL on-chain investments from Solana blockchain...');
         const userInvestments = await getUserInvestments(wallet);
         console.log('Fetched on-chain investments:', userInvestments);
-        setInvestments(userInvestments);
+        
+        // Convert timestamp strings to numbers if needed
+        const processedInvestments = userInvestments.map(inv => ({
+          ...inv,
+          timestamp: typeof inv.timestamp === 'string' ? new Date(inv.timestamp).getTime() : inv.timestamp
+        }));
+        
+        setInvestments(processedInvestments);
       } catch (error) {
         console.error('Error fetching on-chain investments:', error);
         if (error instanceof Error) {
