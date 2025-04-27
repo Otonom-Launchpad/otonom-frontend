@@ -10,19 +10,44 @@ import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from
 
 // Import WalletMultiButton for standard wallet connection
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import CustomWalletButton from '../wallet/CustomWalletButton';
 
-// Simple wallet connection button using the standard WalletMultiButton
+// Simple wallet connection button using the standard WalletMultiButton with fallback
 function ConnectButton({ compact = false }: { compact?: boolean }) {
+  const { publicKey, connected } = useWallet();
+
+  // Direct button implementation for reliability
   return (
-    <WalletMultiButton 
-      className="rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
-      style={{
-        minWidth: compact ? '100px' : '160px',
-        height: '40px',
-        fontSize: '14px',
-        fontFamily: 'var(--font-inter-tight)',
-      }}
-    />
+    <div className="wallet-adapter-dropdown">
+      {connected ? (
+        <button 
+          className="wallet-adapter-button wallet-adapter-button-trigger rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
+          style={{
+            minWidth: compact ? '100px' : '160px',
+            height: '40px',
+            fontSize: '14px',
+            fontFamily: 'var(--font-inter-tight)',
+          }}
+          onClick={() => {
+            // This manually triggers the standard wallet modal
+            document.querySelector('.wallet-adapter-modal-wrapper')?.classList.add('wallet-adapter-modal-wrapper-active');
+            document.querySelector('.wallet-adapter-modal')?.classList.add('wallet-adapter-modal-fade-in');
+          }}
+        >
+          {publicKey ? publicKey.toString().slice(0, 4) + '...' + publicKey.toString().slice(-4) : 'Connect'}
+        </button>
+      ) : (
+        <WalletMultiButton 
+          className="rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
+          style={{
+            minWidth: compact ? '100px' : '160px',
+            height: '40px',
+            fontSize: '14px',
+            fontFamily: 'var(--font-inter-tight)',
+          }}
+        />
+      )}
+    </div>
   )
 }
 
