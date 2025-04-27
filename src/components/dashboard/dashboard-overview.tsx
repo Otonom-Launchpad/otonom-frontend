@@ -52,7 +52,14 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
         console.log('Fetching REAL on-chain investments for dashboard...');
         const userInvestments = await getUserInvestments(wallet);
         console.log('Fetched blockchain investments:', userInvestments);
-        setInvestments(userInvestments);
+        
+        // Convert timestamp strings to numbers if needed
+        const processedInvestments = userInvestments.map(inv => ({
+          ...inv,
+          timestamp: typeof inv.timestamp === 'string' ? new Date(inv.timestamp).getTime() : inv.timestamp
+        }));
+        
+        setInvestments(processedInvestments);
         
         // Calculate total invested amount from actual on-chain investments
         const total = userInvestments.reduce((sum, inv) => sum + inv.amount, 0);
