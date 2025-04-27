@@ -66,6 +66,12 @@ export const autoRegisterUserIfNeeded = async (wallet: WalletContextState): Prom
         // Get the program
         const program = getProgram(wallet);
         
+        // Add null check for professional error handling
+        if (!program) {
+          console.error('Failed to initialize program');
+          return false;
+        }
+        
         // Use the consistent OFUND_MINT from solana-config
         const mint = OFUND_MINT;
         
