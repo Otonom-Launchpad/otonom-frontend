@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "name": "otonom_minimal",
+  "name": "otonom_program",
   "instructions": [
     {
       "name": "initializeMint",

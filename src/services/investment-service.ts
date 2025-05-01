@@ -213,7 +213,10 @@ export async function ensureUserProfileExists(wallet: WalletContextState): Promi
         // Create a direct instruction for initializing a user profile
         const instruction = createInitializeUserProfileInstruction(
           wallet.publicKey,
-          userProfilePda
+          userProfilePda,
+          bump,               // Adding the PDA bump calculated earlier
+          OFUND_MINT,        // Adding the imported token mint address
+          userTokenAccount   // Adding the token account calculated earlier
         );
         
         console.log('[PROFILE] User profile instruction created, sending transaction...');

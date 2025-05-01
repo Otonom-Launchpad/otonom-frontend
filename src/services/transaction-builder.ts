@@ -23,7 +23,7 @@ import { Buffer } from 'buffer';
 /**
  * The OFund program ID - exported as a constant for consistency
  */
-export const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || '7sbu9PQhugXkUgtpZVsNEVnnhXSSmdof9TouHNyBMXaR');
+export const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 
 // Instruction discriminators - first 8 bytes of the SHA256 hash of the instruction name
 const INSTRUCTION_DISCRIMINATORS = {

@@ -8,7 +8,7 @@ export const SOLANA_NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet'
 // They can be viewed by anyone on Solana Explorer: https://explorer.solana.com
 
 // Public Program ID - Otonom Fund smart contract address on Solana
-const PROGRAM_ID_STRING = process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || '7sbu9PQhugXkUgtpZVsNEVnnhXSSmdof9TouHNyBMXaR';
+const PROGRAM_ID_STRING = process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf';
 
 // Public Token Mint - OFUND token mint address on Solana
 const TOKEN_MINT_STRING = process.env.NEXT_PUBLIC_OFUND_TOKEN_MINT || '4pV3umk8pY62ry8FsnMbQfJBYgpWnzWcC67UCMUevXLY';

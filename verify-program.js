@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration (same as in our frontend)
-const PROGRAM_ID = new PublicKey('7sbu9PQhugXkUgtpZVsNEVnnhXSSmdof9TouHNyBMXaR');
+const PROGRAM_ID = new PublicKey('CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 const NETWORK = 'devnet';
 const RPC_URL = 'https://api.devnet.solana.com';
 

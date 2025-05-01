@@ -7,6 +7,12 @@ import { PublicKey, Transaction, TransactionInstruction, SystemProgram, SYSVAR_R
 import { toast } from '@/components/ui/use-toast';
 import { getConnection, OFUND_MINT, PROGRAM_ID } from '@/lib/solana-config';
 import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import * as crypto from 'crypto';
+
+// Professional approach: calculate instruction discriminator on-the-fly
+function sha256(data: string): Buffer {
+  return crypto.createHash('sha256').update(data).digest();
+}
 
 /**
  * Test component to initialize a project
@@ -50,9 +56,23 @@ export function TestInitializeProject() {
       );
       console.log(`Using project vault (ATA): ${projectVault.toString()}`);
       
-      // Initialize project instruction discriminator for snake_case "initialize_project"
-      // From verification script: initialize_project = [30, 193, 84, 123, 140, 205, 33, 51]
-      const initializeProjectDiscriminator = Buffer.from([30, 193, 84, 123, 140, 205, 33, 51]);
+      // Professional approach: using the sha256 function defined above
+      
+      // We'll try format with module namespace prefix
+      const formats = [
+        { name: 'camelCase', value: 'initializeProject' },
+        { name: 'snake_case', value: 'initialize_project' },
+        { name: 'namespace-new', value: 'otonom_program::initialize_project' },
+        { name: 'namespace-old', value: 'otonom_minimal::initialize_project' },
+      ];
+      
+      // Select which format to use - using old namespace format to match deployed program
+      const selectedFormat = formats[3]; // Use old otonom_minimal namespace to match deployed program
+      console.log(`Using instruction format: ${selectedFormat.name} ("${selectedFormat.value}")`)
+      
+      // Calculate the instruction discriminator from the selected format
+      const discriminator = sha256(selectedFormat.value).slice(0, 8);
+      console.log(`Calculated discriminator: [${Array.from(discriminator).join(', ')}]`);
       
       // Create a buffer for the project name
       const nameBuffer = Buffer.from(projectName);
@@ -64,7 +84,7 @@ export function TestInitializeProject() {
       
       // Construct the final instruction data following Anchor's Borsh serialization
       const instructionData = Buffer.concat([
-        initializeProjectDiscriminator,    // 8-byte instruction discriminator
+        discriminator,                     // 8-byte instruction discriminator
         nameLenBuffer,                     // 4-byte length prefix for string
         nameBuffer,                        // actual string bytes
         bumpBuffer,                        // Bump as u8
@@ -111,14 +131,13 @@ export function TestInitializeProject() {
       // Add the initialize project instruction
       transaction.add(instruction);
       
-      // Have the user sign the transaction
-      const signedTransaction = await wallet.signTransaction(transaction);
-      
-      // Get a fresh blockhash right before sending to avoid the "Blockhash not found" error
-      const { blockhash: newBlockhash } = await connection.getRecentBlockhash();
-      signedTransaction.recentBlockhash = newBlockhash;
-      
+      // We'll use a short transaction timeout to ensure the blockhash is still valid
+      // when we send the transaction
       try {
+        // Sign and send the transaction in a single step, without manually updating the blockhash afterwards
+        const signedTransaction = await wallet.signTransaction(transaction);
+        
+        // Immediately send the transaction after signing to avoid blockhash expiration
         // Send the signed transaction
         const signature = await connection.sendRawTransaction(signedTransaction.serialize());
         console.log(`Transaction submitted with signature: ${signature}`);
