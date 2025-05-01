@@ -6,7 +6,8 @@
  */
 
 import { WalletContextState } from '@solana/wallet-adapter-react';
-import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Connection } from '@solana/web3.js';
+import * as web3 from '@solana/web3.js';
 import { BN } from '@coral-xyz/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
 import { initializeProgram } from '@/services/anchor-program';
@@ -60,7 +61,7 @@ type OtonomProgram = any;
 /**
  * Helper function to find the user profile PDA for a given wallet
  */
-const findUserProfilePDA = async (userPublicKey: PublicKey): Promise<PublicKey> => {
+const findUserProfilePda = async (userPublicKey: PublicKey): Promise<PublicKey> => {
   const [pda] = await PublicKey.findProgramAddress(
     [Buffer.from('user-profile'), userPublicKey.toBuffer()],
     PROGRAM_ID
@@ -71,7 +72,7 @@ const findUserProfilePDA = async (userPublicKey: PublicKey): Promise<PublicKey> 
 /**
  * Helper function to find the project PDA for a given project name
  */
-const findProjectPDA = async (projectName: string): Promise<PublicKey> => {
+const findProjectPda = async (projectName: string): Promise<PublicKey> => {
   const [pda] = await PublicKey.findProgramAddress(
     [Buffer.from('project'), Buffer.from(projectName)],
     PROGRAM_ID
@@ -127,10 +128,9 @@ export async function ensureUserProfileExists(wallet: WalletContextState): Promi
     }
 
     // Find user profile PDA
-    const [userProfilePda, bump] = await PublicKey.findProgramAddress(
-      [Buffer.from('user-profile'), wallet.publicKey.toBuffer()],
-      PROGRAM_ID // Using program ID as the seed for PDA
-    );
+    // Import PDA finder from transaction builder for browser compatibility
+    const { findUserProfilePda } = await import('./transaction-builder');
+    const [userProfilePda, bump] = await findUserProfilePda(wallet.publicKey);
     console.log('[PROFILE] User profile PDA:', userProfilePda.toString());
     
     // Initialize program using our compatibility layer
@@ -202,71 +202,40 @@ export async function ensureUserProfileExists(wallet: WalletContextState): Promi
       // We'll continue anyway and let the transaction fail with a helpful message if needed
     }
       
-      // Professional debug: Verify transaction via preflight simulation before sending
+      // Use a browser-compatible direct transaction approach instead of Anchor
       let txSignature: string;
       try {
-        // Build the transaction without sending it
-        // @ts-ignore - Working around type compatibility issues
-        const transaction = await program.methods
-          .registerUser(bump)
-          .accounts({
-            user: wallet.publicKey,
-            userProfile: userProfilePda,
-            mint: OFUND_MINT,
-            userTokenAccount: userTokenAccount,
-            mintAuthority: authorityAccountPda,  // Account that holds authority data (using 'authority' seed)
-            mintAuthorityPda: mintAuthorityPda,  // PDA that signs (using 'mint-authority' seed)
-            tokenProgram: TOKEN_PROGRAM_ID,
-            systemProgram: SystemProgram.programId,
-            rent: SYSVAR_RENT_PUBKEY
-          })
-          .transaction();
-
-        // Get the connection from the provider
-        const connection = program.provider.connection;
+        console.log('[PROFILE] Creating user profile using direct transaction construction...');
         
-        // Simulate the transaction with detailed logs for judges to verify functionality
-        console.log('[PROFILE] Simulating transaction before sending...');
-        try {
-          // Use the correct simulateTransaction API for our Solana web3.js version
-          // This follows the correct signature: (transaction, signers?, includeAccounts?)
-          const simulation = await connection.simulateTransaction(
-            transaction, 
-            undefined, // No additional signers needed
-            true // Include all accounts
-          );
-          
-          if (simulation.value.err) {
-            console.error('[PROFILE] Transaction simulation failed:', simulation.value.err);
-            console.log('[PROFILE] Transaction logs:', simulation.value.logs);
-            throw new Error(`Transaction simulation failed: ${JSON.stringify(simulation.value.err)}`);
-          }
-          
-          // Log all simulation logs for debugging and verification by judges
-          console.log('[PROFILE] Simulation logs:', simulation.value.logs);
-        } catch (simError) {
-          console.error('[PROFILE] Transaction simulation threw exception:', simError);
-          throw simError;
-        }
+        // Import our transaction builder on-demand to ensure it's not part of the initial bundle
+        const { createInitializeUserProfileInstruction, sendTransaction } = await import('./transaction-builder');
         
-        console.log('[PROFILE] Simulation successful, executing transaction...');
+        // Create a direct instruction for initializing a user profile
+        const instruction = createInitializeUserProfileInstruction(
+          wallet.publicKey,
+          userProfilePda
+        );
+        
+        console.log('[PROFILE] User profile instruction created, sending transaction...');
+        
+        // Get a connection to Solana
+        const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+        const connection = new web3.Connection(rpcUrl, { commitment: 'confirmed' });
+        
+        // For detailed logs in browser development environments
+        console.log('[PROFILE] Instruction details:', {
+          programId: instruction.programId.toString(),
+          keys: instruction.keys.map(k => ({
+            pubkey: k.pubkey.toString(),
+            isSigner: k.isSigner,
+            isWritable: k.isWritable
+          })),
+          dataLength: instruction.data.length
+        });
+        
+        // Send the transaction
+        txSignature = await sendTransaction(wallet, connection, instruction);
 
-        // Now execute the real transaction
-        // @ts-ignore - Working around type compatibility issues
-        txSignature = await program.methods
-          .registerUser(bump)
-          .accounts({
-            user: wallet.publicKey,
-            userProfile: userProfilePda,
-            mint: OFUND_MINT,
-            userTokenAccount: userTokenAccount,
-            mintAuthority: authorityAccountPda,  // Account that holds authority data (using 'authority' seed)
-            mintAuthorityPda: mintAuthorityPda,  // PDA that signs (using 'mint-authority' seed)
-            tokenProgram: TOKEN_PROGRAM_ID,
-            systemProgram: SystemProgram.programId,
-            rent: SYSVAR_RENT_PUBKEY
-          })
-          .rpc();
         
         console.log('[PROFILE] User registered successfully with tx:', txSignature);
         console.log(`[PROFILE] Transaction: https://explorer.solana.com/tx/${txSignature}?cluster=devnet`);
@@ -345,7 +314,10 @@ export const investInProject = async (
     console.log('[INVEST] Finding user profile PDA...');
     let userProfilePda;
     try {
-      userProfilePda = await findUserProfilePDA(wallet.publicKey);
+      // Import PDA finder from transaction builder for browser compatibility
+      const { findUserProfilePda } = await import('./transaction-builder');
+      const [userProfilePdaAddress] = await findUserProfilePda(wallet.publicKey);
+      userProfilePda = userProfilePdaAddress;
       console.log(`[INVEST] User profile PDA: ${userProfilePda.toString()}`);
     } catch (pdaError) {
       console.error('[INVEST] Failed to find user profile PDA:', pdaError);
@@ -364,12 +336,28 @@ export const investInProject = async (
         projectVault = new PublicKey(DEMO_PROJECTS[projectName].vault);
       } else {
         console.log(`[INVEST] Finding project PDA for "${projectName}"`);
-        // For dynamic projects, compute the PDA
-        projectPda = await findProjectPDA(projectName);
+        // For dynamic projects, compute the PDA using our browser-compatible function
+        const { findProjectPda } = await import('./transaction-builder');
+        const [projectPdaAddress, projectBump] = await findProjectPda(projectName);
+        projectPda = projectPdaAddress;
+        
         // Get the project account data to obtain the vault address
         console.log('[INVEST] Fetching project account...');
-        const projectAccount = await (program as any).account.project.fetch(projectPda);
-        projectVault = projectAccount.vault;
+        // Use direct RPC call instead of Anchor for browser compatibility
+        const connection = new web3.Connection(
+          process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com',
+          { commitment: 'confirmed' }
+        );
+        const accountInfo = await connection.getAccountInfo(projectPda);
+        
+        if (!accountInfo) {
+          throw new Error(`Project account not found for ${projectName}`);
+        }
+        
+        // Parse account data manually instead of using Anchor
+        // The vault address is at bytes 8+32 (after discriminator and admin pubkey)
+        const projectVaultPubkey = new PublicKey(accountInfo.data.slice(8+32, 8+32+32));
+        projectVault = projectVaultPubkey;
       }
       
       console.log(`[INVEST] Project PDA: ${projectPda.toString()}`);
@@ -429,18 +417,34 @@ export const investInProject = async (
       systemProgram: SystemProgram.programId.toString()
     });
     
-    // Execute the investment transaction using the standard Anchor pattern
-    console.log('[INVEST] Preparing to execute investment transaction...');
+    // Execute the investment transaction using direct transaction construction for browser compatibility
+    console.log('[INVEST] Preparing to execute browser-compatible investment transaction...');
     let tx;
     try {
-      // Log the method being called
-      console.log('[INVEST] Calling program.methods.investInProject with amount:', ofundAmount.toString());
+      // Import our transaction builder on-demand to ensure it's not part of the initial bundle
+      const { createInvestInProjectInstruction, sendTransaction } = await import('./transaction-builder');
       
-      // Perform the actual on-chain transaction
-      tx = await program.methods
-        .investInProject(ofundAmount)
-        .accounts(accountsConfig)
-        .rpc();
+      console.log('[INVEST] Creating direct investment instruction for amount:', amount);
+      
+      // Create a direct instruction without relying on Anchor
+      const instruction = createInvestInProjectInstruction(
+        wallet.publicKey,
+        userProfilePda,
+        projectPda,
+        investorTokenAccount,
+        projectVault,
+        OFUND_MINT,
+        amount
+      );
+      
+      console.log('[INVEST] Direct instruction created, sending transaction...');
+      
+      // Get a connection to Solana
+      const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+      const connection = new web3.Connection(rpcUrl, { commitment: 'confirmed' });
+      
+      // Send the transaction directly without relying on Anchor
+      tx = await sendTransaction(wallet, connection, instruction);
       
       console.log('[INVEST] On-chain investment transaction successful!');
       console.log(`[INVEST] Transaction signature: ${tx}`);
@@ -450,10 +454,10 @@ export const investInProject = async (
       
       // More detailed error handling for transaction failures
       if (txError instanceof Error) {
-        // Look for specific Anchor or Solana error patterns
+        // Look for specific Solana error patterns
         const errorMsg = txError.message;
         if (errorMsg.includes('custom program error: 0x')) {
-          console.error('[INVEST] Detected Anchor program error code in error message');
+          console.error('[INVEST] Detected program error code in error message');
         } else if (errorMsg.includes('Blockhash not found')) {
           console.error('[INVEST] Network issue: Blockhash not found. RPC node may be having issues.');
         } else if (errorMsg.includes('TokenAccount') || errorMsg.includes('Account not found')) {
@@ -506,8 +510,8 @@ export const getUserInvestmentInProject = async (
     const program = programInstance as OtonomProgram;
     
     // Find relevant PDAs
-    const userProfilePda = await findUserProfilePDA(wallet.publicKey);
-    const projectPda = await findProjectPDA(projectName);
+    const userProfilePda = await findUserProfilePda(wallet.publicKey);
+    const projectPda = await findProjectPda(projectName);
     
     // Get user profile to check investments
     const userProfile = await program.account.userProfile.fetch(userProfilePda);
@@ -543,7 +547,7 @@ export const getUserInvestments = async (
     const program = programInstance as OtonomProgram;
     
     // Get user profile PDA
-    const userProfilePda = await findUserProfilePDA(wallet.publicKey);
+    const userProfilePda = await findUserProfilePda(wallet.publicKey);
     console.log('[GET PORTFOLIO] User profile PDA:', userProfilePda.toString());
     
     const userProfile = await program.account.userProfile.fetch(userProfilePda);

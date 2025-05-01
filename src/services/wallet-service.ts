@@ -4,7 +4,7 @@ import { signInWithWallet } from '@/lib/auth';
 import { Buffer } from 'buffer';
 import { PROGRAM_ID, TOKEN_PROGRAM_ID, OFUND_MINT, getConnection } from '@/lib/solana-config';
 import type { WalletContextState } from '@solana/wallet-adapter-react';
-import { initializeProgram, findUserProfilePDA } from '@/services/anchor-program';
+import { initializeProgram, findUserProfilePda } from '@/services/anchor-program';
 
 /**
  * Get program instance with connected wallet using our specialized adapter
@@ -49,7 +49,7 @@ export const autoRegisterUserIfNeeded = async (wallet: WalletContextState): Prom
       }
       
       // Get the PDA and bump for the user profile
-      const { pda: userProfilePda, bump: userBump } = await findUserProfilePDA(wallet.publicKey);
+      const { pda: userProfilePda, bump: userBump } = await findUserProfilePda(wallet.publicKey);
       
       console.log('Checking if user profile exists on-chain...');
       

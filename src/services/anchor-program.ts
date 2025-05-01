@@ -125,11 +125,12 @@ export const initializeProgram = (wallet: WalletContextState) => {
 };
 
 /**
- * Find PDA for user profile
- * @param userAddress The user's wallet address 
- * @returns PDA and bump seed
+ * Find the PDA for a user profile
+ * 
+ * @param userAddress The user's wallet address
+ * @returns Object containing the PDA and bump seed
  */
-export const findUserProfilePDA = async (userAddress: PublicKey) => {
+export const findUserProfilePda = async (userAddress: PublicKey) => {
   console.log('[PDA] Finding user profile PDA for address:', userAddress.toString());
   try {
     const [pda, bump] = await PublicKey.findProgramAddress(
@@ -149,7 +150,7 @@ export const findUserProfilePDA = async (userAddress: PublicKey) => {
  * @param projectName The name of the project
  * @returns Project PDA
  */
-export const findProjectPDA = async (projectName: string) => {
+export const findProjectPda = async (projectName: string) => {
   console.log('[PDA] Finding project PDA for:', projectName);
   try {
     const [pda] = await PublicKey.findProgramAddress(
