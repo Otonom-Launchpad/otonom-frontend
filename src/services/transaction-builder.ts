@@ -25,16 +25,26 @@ import { Buffer } from 'buffer';
  */
 export const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 
-// Instruction discriminators - first 8 bytes of the SHA256 hash of the instruction name
+// Import the IDL and proper type definition
+import rawIdl from '@/idl/spg/ofund-idl-deployed.json';
+import { BorshInstructionCoder, Idl } from '@project-serum/anchor';
+
+// Cast the imported JSON to the Idl type to satisfy TypeScript
+const idl = rawIdl as unknown as Idl;
+
+// Create the instruction coder from the IDL
+const instructionCoder = new BorshInstructionCoder(idl);
+
+// Get instruction discriminators from the IDL using Anchor's coder
 const INSTRUCTION_DISCRIMINATORS = {
-  // From the IDL: registerUser instruction
-  registerUser: Buffer.from([121, 41, 20, 228, 138, 91, 17, 234]),         // SHA256("register_user")[0..8]
+  // From the IDL: registerUser instruction (camelCase in IDL)
+  registerUser: instructionCoder.encode('registerUser', {}).slice(0, 8),
   
-  // From the IDL: invest_in_project instruction 
-  investInProject: Buffer.from([116, 59, 119, 121, 183, 130, 43, 238]),    // SHA256("invest_in_project")[0..8]
+  // From the IDL: investInProject instruction (camelCase in IDL)
+  investInProject: instructionCoder.encode('investInProject', {}).slice(0, 8),
   
-  // From the IDL: initializeProject instruction
-  initializeProject: Buffer.from([30, 193, 84, 123, 140, 205, 33, 51]),  // SHA256("initialize_project")[0..8]
+  // From the IDL: initializeProject instruction (camelCase in IDL)
+  initializeProject: instructionCoder.encode('initializeProject', {}).slice(0, 8),
 };
 
 /**
