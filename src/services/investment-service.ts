@@ -563,23 +563,36 @@ export const getUserInvestments = async (
       return [];
     }
     
-    // Map investments to a more usable format with readable project names
-    return userProfile.investments.map((inv: Investment) => {
-      const projectKey = inv.project.toString();
-      
-      // We're using 1:1 conversion for the hackathon (1 OFUND = $1 USD)
-      // Do not divide by 1000 as that's causing incorrect display values
-      const amount = Number(inv.amount);
-      
-      // Log the investment details for judges to trace
-      console.log(`Found investment in project ${projectKey}: ${amount} OFUND tokens = $${amount} USD`);
-      
-      return {
-        projectName: PROJECTS_MAP[projectKey] || `Project ${projectKey.slice(0, 6)}...`,
-        amount: amount,
-        timestamp: inv.timestamp
-      };
-    });
+    // Resolve project names on-chain (fallback to map) and convert BN fields
+    const investmentsDetailed = await Promise.all(
+      userProfile.investments.map(async (inv: Investment) => {
+        const projectKey = inv.project.toString();
+
+        // Amount is stored as BN (u64). Convert directly to number (devnet amounts are small)
+        const amount = Number(inv.amount);
+
+        // Timestamp BN to JS number (seconds since epoch)
+        const ts = (inv.timestamp as unknown as BN).toNumber();
+
+        // Try fetch project account to obtain readable name
+        let projectName = PROJECTS_MAP[projectKey];
+        if (!projectName) {
+          try {
+            const projectAcc: any = await program.account.project.fetch(inv.project);
+            projectName = projectAcc.name as string;
+          } catch (fetchErr) {
+            console.warn('[INVESTMENTS] Could not fetch project name for', projectKey, fetchErr);
+            projectName = `Project ${projectKey.slice(0, 6)}...`;
+          }
+        }
+
+        console.log(`Investment → ${projectName}: ${amount} OFUND ($${amount}) at ${ts}`);
+
+        return { projectName, amount, timestamp: ts };
+      })
+    );
+
+    return investmentsDetailed;
   } catch (error: unknown) {
     console.error('Error getting user investments:', error);
     // If account doesn't exist yet, that's expected for new users

@@ -63,60 +63,48 @@ export const initializeProgram = (wallet: WalletContextState) => {
     try {
       // Log important IDs for debugging
       console.log('[ANCHOR] Program ID from config:', PROGRAM_ID.toBase58());
-      console.log('[ANCHOR] Program ID from IDL:', idlFile.metadata?.address || 'Not found in IDL');
+      // `metadata` is not part of the generated IDL type. Cast to `any` to access it safely.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      console.log('[ANCHOR] Program ID from IDL:', (idlFile as any).metadata?.address || 'Not found in IDL');
       
       // Create a clean copy of the IDL to prevent any mutations
       const idlCopy = JSON.parse(JSON.stringify(idlFile));
       
       // Ensure we're dealing with proper PublicKey objects
       const programId = new PublicKey(PROGRAM_ID.toString());
+
+      // ------------------------------------------------------------------
+      // Anchor v0.31+ expects `idl.metadata.address` to be present so that
+      // it can verify the IDL belongs to the given program. If it is
+      // missing (common when the IDL is generated with `anchor idl
+      // init` older than v0.25), the constructor attempts to translate an
+      // `undefined` value into a `PublicKey`, leading to the notorious
+      // "cannot read properties of undefined (reading '_bn')" error.
+      // We patch the IDL at runtime by injecting the program ID.
+      // ------------------------------------------------------------------
+      if (!idlCopy.metadata) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - we are adding the missing field dynamically
+        idlCopy.metadata = {};
+      }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - metadata is loosely typed
+      idlCopy.metadata.address = programId.toBase58();
+
+      // Create the program – now safe because the IDL is patched
+      // @ts-ignore – generic type param not critical for runtime
+      const anchorProgram = new Program(idlCopy as Idl, programId, provider);
       
-      // Professional fix for cross-version Anchor compatibility
-      // This handles the _bn error that occurs with certain versions of Anchor
-      try {
-        // Fix for Anchor version compatibility issues
-        // This approach handles various Anchor versions professionally
-        const idl = idlCopy as Idl;
-        let anchorProgram: Program;
-        
-        // Create the program - using type assertion to bypass TypeScript errors
-        // This preserves the exact same runtime behavior without dependency changes
-        try {
-          // Using type assertion to work around TypeScript errors
-          // @ts-ignore - This exact pattern works with our Anchor version
-          anchorProgram = new Program(idl, programId, provider);
-        } catch (bnError) {
-          console.log('[ANCHOR] Standard program initialization failed:', bnError);
-          console.log('[ANCHOR] Trying alternate initialization approach...');
-          
-          // If standard approach fails, try an alternative that works with our version
-          try {
-            // Type assertion allows us to maintain compatibility without version changes
-            // @ts-ignore - This is a known pattern that works with our Anchor version
-            anchorProgram = new Program(idl, programId.toString(), provider);
-          } catch (secondError) {
-            console.error('[ANCHOR] Alternate initialization also failed:', secondError);
-            throw secondError;
-          }
-        }
-        
-        // Verify we can access methods on the program
-        if (anchorProgram.methods) {
-          console.log('[ANCHOR] Program successfully initialized:', 
-                      'Methods:', Object.keys(anchorProgram.methods).join(', '));
-        }
-        
-        return anchorProgram;
-      } catch (error) {
-        console.error('[ANCHOR] Program initialization failed:', error);
-        throw error;
+      // Verify we can access methods on the program
+      if (anchorProgram.methods) {
+        console.log('[ANCHOR] Program successfully initialized:', 
+                    'Methods:', Object.keys(anchorProgram.methods).join(', '));
       }
-    } catch (programError) {
-      console.error('[ANCHOR] Error creating program instance:', programError);
-      if (programError instanceof Error) {
-        console.error('[ANCHOR] Error message:', programError.message);
-      }
-      return undefined;
+      
+      return anchorProgram;
+    } catch (error) {
+      console.error('[ANCHOR] Program initialization failed:', error);
+      throw error;
     }
   } catch (error) {
     console.error('[ANCHOR] Initialization error:', error);
