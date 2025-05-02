@@ -12,10 +12,10 @@ const web3 = require('@solana/web3.js');
 const { TOKEN_PROGRAM_ID } = require('@solana/spl-token');
 
 // Configuration constants
-const PROGRAM_ID = new web3.PublicKey('CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
+const PROGRAM_ID = new web3.PublicKey(process.env.OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 const OFUND_MINT = new web3.PublicKey('4pV3umk8pY62ry8FsnMbQfJBYgpWnzWcC67UCMUevXLY');
 const WALLET_PATH = path.resolve(process.env.HOME || '', '.config/solana/id.json');
-const IDL_PATH = path.resolve(__dirname, '../src/idl/spg/ofund-idl-deployed.json');
+const IDL_PATH = path.resolve(__dirname, '../src/lib/ofund-idl.json');
 const NETWORK = 'devnet';
 
 // Load wallet

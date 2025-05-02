@@ -22,10 +22,10 @@ import {
 } from '@solana/spl-token';
 
 // ----- Configuration constants -----
-const PROGRAM_ID = new PublicKey('CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
+const PROGRAM_ID = new PublicKey(process.env.OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 const OFUND_MINT = new PublicKey('4pV3umk8pY62ry8FsnMbQfJBYgpWnzWcC67UCMUevXLY');
 const WALLET_PATH = path.resolve(process.env.HOME || '', '.config/solana/id.json');
-const IDL_PATH = path.resolve(__dirname, '../src/idl/spg/ofund-idl-deployed.json');
+const IDL_PATH = path.resolve(__dirname, '../src/lib/ofund-idl.json');
 const NETWORK = 'devnet';
 const SAMPLE_PROJECT_NAME = 'Demo Project';
 
@@ -271,10 +271,11 @@ async function initializeSampleProject() {
     return;
   }
 
-  // Project vault is an ATA owned by the project authority (wallet)
+  // Project vault: ATA owned by the project PDA (allow off-curve)
   const projectVault = await getAssociatedTokenAddress(
     OFUND_MINT,
-    keypair.publicKey
+    projectPda,
+    true // allow owner off-curve (PDA)
   );
 
   // Ensure the vault ATA exists
@@ -283,7 +284,8 @@ async function initializeSampleProject() {
       connection,
       keypair, // payer
       OFUND_MINT,
-      keypair.publicKey
+      projectPda,
+      true // owner off-curve
     );
     console.log('Project vault ATA ensured');
   } catch (ataErr: any) {

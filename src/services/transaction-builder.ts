@@ -19,15 +19,15 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { Buffer } from 'buffer';
+import { PROGRAM_ID } from '@/lib/solana-config';
 
 /**
  * The OFund program ID - exported as a constant for consistency
  */
-export const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 
 // Import the IDL and proper type definition
-import rawIdl from '@/idl/spg/ofund-idl-deployed.json';
-import { BorshInstructionCoder, Idl } from '@project-serum/anchor';
+import rawIdl from '@/lib/ofund-idl.json';
+import { BorshInstructionCoder, Idl, BorshAccountsCoder } from '@project-serum/anchor';
 
 // Cast the imported JSON to the Idl type to satisfy TypeScript
 const idl = rawIdl as unknown as Idl;
@@ -240,6 +240,28 @@ export function createInitializeProjectInstruction(
     keys,
     data: instructionData,
   });
+}
+
+/**
+ * Fetch on-chain Project account and return its stored vault address.
+ * We need this because the vault ATA may not equal the deterministic
+ * (mint, project PDA) ATA that the front-end used to derive previously.
+ */
+export async function getProjectVaultAddress(
+  connection: Connection,
+  projectPda: PublicKey,
+): Promise<PublicKey> {
+  const info = await connection.getAccountInfo(projectPda);
+  if (!info) {
+    throw new Error('Project account not found on chain');
+  }
+  // Decode via Anchor account coder
+  const accountsCoder = new BorshAccountsCoder(idl);
+  const decoded: any = accountsCoder.decode('Project', info.data);
+  if (!decoded || !decoded.vault) {
+    throw new Error('Failed to decode project account');
+  }
+  return decoded.vault as PublicKey;
 }
 
 /**

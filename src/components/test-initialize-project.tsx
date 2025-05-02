@@ -7,7 +7,7 @@ import { PublicKey, Transaction, TransactionInstruction, SystemProgram, SYSVAR_R
 import { toast } from '@/components/ui/use-toast';
 import { getConnection, OFUND_MINT, PROGRAM_ID } from '@/lib/solana-config';
 import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
-import idl from '@/idl/spg/ofund-idl-deployed.json';
+import idl from '@/lib/ofund-idl.json';
 import { BorshInstructionCoder } from '@project-serum/anchor';
 
 /**

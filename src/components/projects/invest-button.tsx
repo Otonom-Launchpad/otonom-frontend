@@ -194,18 +194,19 @@ export function InvestButton({
       const [projectPda, projectBump] = await findProjectPda(projectName);
       console.log(`Project PDA: ${projectPda.toString()}, bump: ${projectBump}`);
       
-      // Get the token account address (we don't need to create it here, just get the expected address)
+      // Get associated token accounts
       console.log('Getting token accounts...');
+      // Investor's personal OFUND ATA
       const investorTokenAccount = await getAssociatedTokenAddress(
         OFUND_MINT,
         wallet.publicKey
       );
       console.log(`Investor token account: ${investorTokenAccount.toString()}`);
-      
-      // For demo projects, we use a known vault account
-      // In production, fetch this from the on-chain project account
-      const projectVault = new PublicKey('FUUTqZq2tBahQcMwyYiJ58jtk6tEeYJwfKTde5UedJzn');
-      console.log(`Project vault account: ${projectVault.toString()}`);
+
+      // Fetch the vault address stored in the on-chain Project account
+      const { getProjectVaultAddress } = await import('@/services/transaction-builder');
+      const projectVault = await getProjectVaultAddress(connection, projectPda);
+      console.log(`Project vault (on-chain): ${projectVault.toString()}`);
       
       // Create the instruction
       console.log('Creating invest instruction...');

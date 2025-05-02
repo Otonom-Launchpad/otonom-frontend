@@ -16,7 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Configuration (same as in our frontend)
-const PROGRAM_ID = new PublicKey('CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
+const PROGRAM_ID = new PublicKey(process.env.OFUND_PROGRAM_ID || 'CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf');
 const NETWORK = 'devnet';
 const RPC_URL = 'https://api.devnet.solana.com';
 
@@ -64,7 +64,7 @@ async function main() {
     const connection = new Connection(RPC_URL, 'confirmed');
 
     // Load IDL from local file
-    const idlPath = path.join(__dirname, 'src/lib/ofund-idl-deployed.json');
+    const idlPath = path.join(__dirname, 'src/lib/ofund-idl.json');
     const idlRaw = fs.readFileSync(idlPath, 'utf8');
     const idl = JSON.parse(idlRaw);
 
