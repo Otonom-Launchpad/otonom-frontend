@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { supabase } from './supabase';
+import { supabase, safeSupabase } from './supabase';
 
 /**
  * Create or get a user account based on wallet address
@@ -64,7 +64,8 @@ export const signInWithWallet = async (walletAddress: string): Promise<{
  * Get the current user from Supabase Auth
  */
 export const getCurrentUser = async () => {
-  const { data, error } = await supabase.auth.getUser();
+  // Use the safe wrapper that handles AuthSessionMissingError gracefully
+  const { data, error } = await safeSupabase.auth.getUser();
   
   if (error) {
     console.error('Error getting current user:', error);

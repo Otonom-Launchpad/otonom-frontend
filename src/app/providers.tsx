@@ -22,8 +22,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(network);
   
   // Configure supported wallets for the best user experience
+  // NOTE: Phantom is automatically included by StandardWalletAdapter
+  // so we only explicitly add Solflare to avoid duplicate registration
   const wallets = [
-    new PhantomWalletAdapter(),
+    // Removed PhantomWalletAdapter to avoid double registration warning
     new SolflareWalletAdapter(),
   ];
 

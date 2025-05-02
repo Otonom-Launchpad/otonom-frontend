@@ -45,6 +45,9 @@ const INSTRUCTION_DISCRIMINATORS = {
   
   // From the IDL: initializeProject instruction (camelCase in IDL)
   initializeProject: instructionCoder.encode('initializeProject', {}).slice(0, 8),
+  
+  // From the IDL: initializeExistingMint instruction (camelCase in IDL)
+  initializeExistingMint: instructionCoder.encode('initializeExistingMint', {}).slice(0, 8),
 };
 
 /**
@@ -288,6 +291,84 @@ export async function findMintAuthorityPDAs(
   );
 
   return [mintAuthorityPda, authorityAccountPda];
+}
+
+/**
+ * Create an instruction to initialize an existing mint with the program's mint authority
+ * @param admin Admin wallet that will pay for transaction
+ * @param mint Existing token mint address
+ * @param tokenName Name of the token
+ * @param tokenSymbol Symbol of the token
+ * @param tokenUri URI for the token metadata
+ * @returns TransactionInstruction
+ */
+export async function createInitializeExistingMintInstruction(
+  admin: PublicKey,
+  mint: PublicKey,
+  tokenName: string,
+  tokenSymbol: string,
+  tokenUri: string
+): Promise<TransactionInstruction> {
+  console.log('[TX_BUILDER] Creating initialize existing mint instruction');
+  
+  // Find the mint authority PDAs
+  const [mintAuthorityPda, mintAuthority] = await findMintAuthorityPDAs(mint);
+  console.log(`Mint Authority PDA: ${mintAuthorityPda.toString()}`);
+  console.log(`Authority Account: ${mintAuthority.toString()}`);
+  
+  // Get the authority bump
+  const [_, authorityBump] = await PublicKey.findProgramAddress(
+    [Buffer.from('authority'), mint.toBuffer()],
+    PROGRAM_ID
+  );
+  
+  // Serialize arguments according to IDL
+  // authorityBump: u8
+  // tokenName: string
+  // tokenSymbol: string
+  // tokenUri: string
+  
+  // Create buffers for strings
+  const nameBuffer = Buffer.from(tokenName);
+  const nameLength = Buffer.alloc(4);
+  nameLength.writeUInt32LE(nameBuffer.length, 0);
+  
+  const symbolBuffer = Buffer.from(tokenSymbol);
+  const symbolLength = Buffer.alloc(4);
+  symbolLength.writeUInt32LE(symbolBuffer.length, 0);
+  
+  const uriBuffer = Buffer.from(tokenUri);
+  const uriLength = Buffer.alloc(4);
+  uriLength.writeUInt32LE(uriBuffer.length, 0);
+  
+  // Create the instruction data
+  const instructionData = Buffer.concat([
+    INSTRUCTION_DISCRIMINATORS.initializeExistingMint,
+    Buffer.from([authorityBump]),
+    nameLength,
+    nameBuffer,
+    symbolLength,
+    symbolBuffer,
+    uriLength,
+    uriBuffer
+  ]);
+  
+  // Define accounts according to IDL
+  const keys = [
+    { pubkey: admin, isSigner: true, isWritable: true },
+    { pubkey: mint, isSigner: false, isWritable: true },
+    { pubkey: mintAuthorityPda, isSigner: false, isWritable: false },
+    { pubkey: mintAuthority, isSigner: false, isWritable: true },
+    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+  ];
+  
+  return new TransactionInstruction({
+    programId: PROGRAM_ID,
+    keys,
+    data: instructionData
+  });
 }
 
 /**
