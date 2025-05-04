@@ -10,6 +10,8 @@ import { Program, AnchorProvider, BN, web3, Idl } from '@coral-xyz/anchor';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { PROGRAM_ID } from '@/lib/solana-config';
 import idlFile from '../lib/ofund-idl.json';
+import { validateIdl } from '@/utils/validate-idl';
+import * as sha256 from 'js-sha256';
 
 // Connection configuration
 const COMMITMENT = 'confirmed';
@@ -73,34 +75,146 @@ export const initializeProgram = (wallet: WalletContextState) => {
       // Ensure we're dealing with proper PublicKey objects
       const programId = new PublicKey(PROGRAM_ID.toString());
 
-      // ------------------------------------------------------------------
-      // Anchor v0.31+ expects `idl.metadata.address` to be present so that
-      // it can verify the IDL belongs to the given program. If it is
-      // missing (common when the IDL is generated with `anchor idl
-      // init` older than v0.25), the constructor attempts to translate an
-      // `undefined` value into a `PublicKey`, leading to the notorious
-      // "cannot read properties of undefined (reading '_bn')" error.
-      // We patch the IDL at runtime by injecting the program ID.
-      // ------------------------------------------------------------------
-      if (!idlCopy.metadata) {
+      // Ensure required root fields exist; Anchor ≥0.31+ expects both
+      // `address` and `types` top-level keys. Some older IDL dumps omit them.
+      if (!idlCopy.address) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - we are adding the missing field dynamically
-        idlCopy.metadata = {};
+        // @ts-ignore
+        idlCopy.address = programId.toBase58();
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - metadata is loosely typed
-      idlCopy.metadata.address = programId.toBase58();
 
-      // Create the program – now safe because the IDL is patched
-      // @ts-ignore – generic type param not critical for runtime
-      const anchorProgram = new Program(idlCopy as Idl, programId, provider);
-      
+      // Ensure an empty `types` array if missing to satisfy BorshAccountsCoder
+      if (!('types' in idlCopy)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        idlCopy.types = [];
+      }
+
+      // Ensure an `accounts` array exists; some IDL dumps omit it entirely.
+      if (!Array.isArray(idlCopy.accounts)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        idlCopy.accounts = [];
+      }
+
+      // Reconcile declared accounts with those referenced in instructions.
+      // Some IDL generators leave only PascalCase variants in `accounts`
+      // while instructions use camelCase (`mintAuthority`) or add PDA
+      // variants (`mintAuthorityPda`). Anchor’s BorshAccountsCoder is strict;
+      // every referenced name must appear in `idl.accounts` or it will throw
+      // "Account not found". Here we clone a canonical struct when possible,
+      // or create an empty placeholder to satisfy the discriminator check.
+      if (Array.isArray(idlCopy.instructions)) {
+        const declaredMap = new Map<string, any>();
+        idlCopy.accounts.forEach((acc: any) => declaredMap.set(acc.name, acc));
+
+        const toAdd: any[] = [];
+
+        idlCopy.instructions.forEach((ix: any) => {
+          ix.accounts?.forEach((acct: any) => {
+            const refName: string = acct.name;
+            if (!declaredMap.has(refName)) {
+              const pascal = refName.charAt(0).toUpperCase() + refName.slice(1);
+              const canonical = declaredMap.get(pascal);
+
+              if (canonical) {
+                toAdd.push({ ...canonical, name: refName });
+              } else {
+                // Minimal placeholder struct; fields are not required to
+                // compute discriminators, only the name.
+                toAdd.push({
+                  name: refName,
+                  type: { kind: 'struct', fields: [] },
+                });
+              }
+
+              declaredMap.set(refName, true);
+            }
+          });
+        });
+
+        if (toAdd.length > 0) {
+          idlCopy.accounts.push(...toAdd);
+        }
+
+        // Add discriminator field if missing (Anchor ≥0.30 requirement)
+        idlCopy.accounts.forEach((acc: any) => {
+          if (!acc.discriminator || !Array.isArray(acc.discriminator) || acc.discriminator.length !== 8) {
+            const digest = (sha256 as any).digest(`account:${acc.name}`);
+            acc.discriminator = Array.from(digest.slice(0, 8));
+          }
+        });
+
+        // Debug: list reconciled account names
+        console.log('[ANCHOR] Reconciled accounts:', idlCopy.accounts.map((a: any) => a.name));
+
+        const mintAcc = idlCopy.accounts.find((a: any) => a.name === 'mintAuthority');
+        console.log('[ANCHOR] mintAuthority account def:', mintAcc);
+      }
+
+      // Ensure every account struct also exists in idlCopy.types as required by
+      // Anchor's BorshAccountsCoder (it looks up types by account name).
+      if (Array.isArray(idlCopy.accounts)) {
+        if (!Array.isArray(idlCopy.types)) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          idlCopy.types = [];
+        }
+
+        const existingTypes = new Map<string, any>();
+        idlCopy.types.forEach((t: any) => existingTypes.set(t.name, t));
+
+        idlCopy.accounts.forEach((acc: any) => {
+          if (!existingTypes.has(acc.name)) {
+            // Push a shallow copy with name and type
+            idlCopy.types.push({ name: acc.name, type: acc.type });
+          }
+        });
+      }
+
+      // Normalize primitive type divergence introduced in Anchor v0.31+: older
+      // IDLs use the string literal "publicKey" while newer Anchor expects
+      // "pubkey". Replace recursively so the coder recognises the field.
+      const normalizePubkeyTypes = (node: any) => {
+        if (!node) return;
+        if (Array.isArray(node)) {
+          node.forEach(normalizePubkeyTypes);
+          return;
+        }
+        if (typeof node === 'object') {
+          if (node.type === 'publicKey') {
+            node.type = 'pubkey';
+          } else if (typeof node.type === 'object') {
+            normalizePubkeyTypes(node.type);
+          }
+          // Recurse over all nested properties
+          Object.values(node).forEach(normalizePubkeyTypes);
+        }
+      };
+
+      normalizePubkeyTypes(idlCopy.accounts);
+      if (idlCopy.types) {
+        normalizePubkeyTypes(idlCopy.types);
+      }
+
+      // ---------------- FULL IDL VALIDATION ----------------
+      validateIdl(idlCopy);
+
+      let anchorProgram: Program;
+      try {
+        // For Anchor ≥0.31, constructor signature is (idl, provider, coder?)
+        anchorProgram = new Program(idlCopy as Idl, provider);
+      } catch (primaryErr) {
+        console.error('[ANCHOR] Program constructor failed:', primaryErr);
+        throw primaryErr;
+      }
+
       // Verify we can access methods on the program
       if (anchorProgram.methods) {
-        console.log('[ANCHOR] Program successfully initialized:', 
+        console.log('[ANCHOR] Program successfully initialized:',
                     'Methods:', Object.keys(anchorProgram.methods).join(', '));
       }
-      
+
       return anchorProgram;
     } catch (error) {
       console.error('[ANCHOR] Program initialization failed:', error);

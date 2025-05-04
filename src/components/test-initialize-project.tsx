@@ -53,7 +53,9 @@ export function TestInitializeProject() {
       console.log(`Using project vault (ATA): ${projectVault.toString()}`);
       
       // Use Anchor's BorshInstructionCoder to serialize the initializeProject instruction
-      const coder = new BorshInstructionCoder(idl);
+      // Cast the imported IDL to the Anchor Idl type to satisfy TypeScript
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const coder = new BorshInstructionCoder(idl as any);
       const ixData = coder.encode('initializeProject', { projectName: projectName });
       console.log('Serialized instruction data via Anchor:', ixData.toString('hex'));
       

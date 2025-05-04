@@ -41,10 +41,12 @@ export function createCompatibleProgram(
 
     // Log details for debugging
     console.log('[ANCHOR] Using program ID:', programId.toBase58());
-    console.log('[ANCHOR] IDL program ID:', idlFile.metadata?.address || 'Not found in IDL');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    console.log('[ANCHOR] IDL program ID:', (idlFile as any).metadata?.address || 'Not found in IDL');
     
     // Handle IDL compatibility checks
-    const idl = {...idlFile};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const idl = {...idlFile} as any;
     
     // Ensure metadata has correct program ID
     if (!idl.metadata) {
