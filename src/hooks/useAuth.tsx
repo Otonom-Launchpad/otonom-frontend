@@ -12,7 +12,8 @@ interface AuthUser {
 }
 
 export function useAuth() {
-  const { publicKey, connected } = useWallet();
+  const wallet = useWallet();
+  const { publicKey, connected } = wallet;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -156,20 +157,24 @@ export function useAuth() {
   const disconnectWallet = useCallback(async () => {
     try {
       setLoading(true);
+
+      // Disconnect the wallet adapter session first
+      await wallet.disconnect();
+
       const { error: signOutError } = await signOut();
-      
+
       if (signOutError) {
         setError(signOutError);
         return;
       }
-      
+
       setUser(null);
     } catch (err) {
       setError(`Sign out error: ${(err as Error).message}`);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [wallet]);
 
   return {
     user,
