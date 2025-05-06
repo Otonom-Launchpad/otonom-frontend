@@ -146,27 +146,18 @@ export async function ensureUserProfileExists(wallet: WalletContextState): Promi
       const initialBalance = await getOfundBalance(wallet.publicKey);
       console.log('[PROFILE] Current OFUND balance:', initialBalance);
       
-      if (initialBalance > 0) {
-        console.log('[PROFILE] User already has OFUND tokens, they may be registered already');
-        // Even though they have tokens, try to verify the user profile exists
-        try {
-          // @ts-ignore
-          const userProfileInfo = await program.account.userProfile.fetch(userProfilePda);
-          console.log('[PROFILE] User profile exists:', userProfileInfo);
-          return true; // User profile exists, no need to create it
-        } catch (error) {
-          console.log('[PROFILE] User has tokens but no profile. This is an unusual state.');
-          // Continue with registration to ensure profile exists
-        }
-      } else {
-        try {
-          // Check if user profile already exists
-          // @ts-ignore
-          const userProfileInfo = await program.account.userProfile.fetch(userProfilePda);
-          console.log('[PROFILE] User profile already exists:', userProfileInfo);
-          return true; // User profile exists, no need to create it
-        } catch (error) {
-          console.log('[PROFILE] User profile does not exist, creating...');
+      // Try fetching the profile – if it succeeds we are done
+      try {
+        // @ts-ignore  Anchor type
+        const userProfileInfo = await program.account.userProfile.fetch(userProfilePda);
+        console.log('[PROFILE] User profile exists:', userProfileInfo);
+        return true;
+      } catch (fetchErr: any) {
+        const errString = fetchErr?.toString?.() || '';
+        if (errString.includes('Account does not exist') || errString.includes('AccountNotInitialized')) {
+          console.log('[PROFILE] Profile missing or not initialised – will invoke registerUser');
+        } else {
+          console.warn('[PROFILE] Unexpected error fetching profile, will attempt registration anyway:', fetchErr);
         }
       }
     // Get or create the user's token account
