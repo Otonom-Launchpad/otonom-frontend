@@ -25,78 +25,70 @@ interface InvestButtonProps {
  * Create a user profile on-chain if it doesn't exist
  * Uses browser-compatible direct transaction construction
  */
-async function createUserProfileIfNeeded(wallet: WalletContextState): Promise<void> {
+async function createUserProfileIfNeeded(wallet: WalletContextState): Promise<boolean> {
+  if (!wallet.publicKey) {
+    console.error('Cannot create user profile - wallet not connected');
+    return false;
+  }
+  
   try {
-    if (!wallet.publicKey) {
-      console.error('Cannot create user profile - wallet not connected');
-      return;
-    }
+    console.log('Ensuring user profile and OFUND ATA exist...');
     
-    console.log('Ensuring user profile exists (direct construction method)...');
-    
-    // Import our transaction builder and OFUND_MINT
-    const { createInitializeUserProfileInstruction, findUserProfilePda, sendTransaction } = 
-      await import('@/services/transaction-builder');
+    // Dynamic imports to keep bundle lean
+    const {
+      createInitializeUserProfileInstruction,
+      findUserProfilePda,
+      sendTransaction,
+    } = await import('@/services/transaction-builder');
     const { OFUND_MINT } = await import('@/lib/solana-config');
-    const { getOrCreateAssociatedTokenAccount } = await import('@solana/spl-token');
-    
-    // Get a connection
+    const {
+      getAssociatedTokenAddress,
+      createAssociatedTokenAccountInstruction,
+    } = await import('@solana/spl-token');
     const connection = getConnection();
     
-    // Find the user profile PDA
-    const [userProfilePda, bump] = await findUserProfilePda(wallet.publicKey);
-    console.log(`User profile PDA: ${userProfilePda.toString()}, bump: ${bump}`);
-    
-    // Check if account exists already
-    const accountInfo = await connection.getAccountInfo(userProfilePda);
-    if (accountInfo) {
-      console.log('User profile already exists, skipping creation');
-      return;
-    }
-    
-    // Get or create the user's token account for OFUND
-    console.log('Getting user token account for OFUND...');
-    
-    // First, find the associated token account address without creating it
-    const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+    // 1️⃣ Ensure the investor's OFUND ATA exists --------------------------------
     const userTokenAddress = await getAssociatedTokenAddress(
       OFUND_MINT,
-      wallet.publicKey
+      wallet.publicKey,
     );
-    console.log(`User token account address: ${userTokenAddress.toString()}`);
-    
-    // Check if the token account exists
     const tokenAccountInfo = await connection.getAccountInfo(userTokenAddress);
-    
-    // If it doesn't exist, we'll create it when we register the user through the program
     if (!tokenAccountInfo) {
-      console.log('Token account does not exist yet - will be created during registration');
+      console.log('OFUND ATA missing – creating...');
+      const createAtaIx = createAssociatedTokenAccountInstruction(
+        wallet.publicKey,      // payer
+        userTokenAddress,      // ata to create
+        wallet.publicKey,      // owner
+        OFUND_MINT,            // mint
+      );
+      await sendTransaction(wallet, connection, createAtaIx);
+      console.log('OFUND ATA created:', userTokenAddress.toString());
     } else {
-      console.log('Token account already exists');
+      console.log('OFUND ATA already exists:', userTokenAddress.toString());
     }
     
-    const userTokenAccount = userTokenAddress;
-    console.log(`Using token account: ${userTokenAccount.toString()}`);
+    // 2️⃣ Ensure the user profile account exists -------------------------------
+    const [userProfilePda, bump] = await findUserProfilePda(wallet.publicKey);
+    const accountInfo = await connection.getAccountInfo(userProfilePda);
+    if (accountInfo) {
+      console.log('User profile already exists, skipping registration');
+      return true;
+    }
     
-    // Create the instruction with all required accounts according to the IDL
-    console.log('Creating register user instruction...');
-    const instruction = createInitializeUserProfileInstruction(
+    console.log('Creating user profile on-chain...');
+    const registerIx = createInitializeUserProfileInstruction(
       wallet.publicKey,
       userProfilePda,
       bump,
       OFUND_MINT,
-      userTokenAccount
+      userTokenAddress,
     );
-    
-    // Send the transaction
-    console.log('Creating user profile on-chain...');
-    const signature = await sendTransaction(wallet, connection, instruction);
-    console.log(`User profile created with tx: ${signature}`);
-    console.log(`View on explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+    await sendTransaction(wallet, connection, registerIx);
+    console.log('User profile created successfully');
+    return true;
   } catch (error) {
-    // Just log the error but continue - the investment transaction will likely fail
-    // if the user profile doesn't exist, but maybe it does exist and we just got an error checking
-    console.warn('Failed to ensure user profile exists, but continuing anyway:', error);
+    console.error('Failed to create user profile / ATA:', error);
+    return false;
   }
 }
 
@@ -161,7 +153,16 @@ export function InvestButton({
       
       // We need to create a user profile first if it doesn't exist
       // Since we can't reliably check its existence in the browser without Anchor, we'll try to create it
-      await createUserProfileIfNeeded(wallet);
+      const profileOk = await createUserProfileIfNeeded(wallet);
+      if (!profileOk) {
+        toast({
+          title: 'User setup failed',
+          description: 'Could not create your investor profile. Please try again.',
+          variant: 'destructive',
+        });
+        setIsProcessing(false);
+        return; // Bail early – do NOT proceed to invest
+      }
       
       // Import our transaction builder for browser-compatible direct transactions
       console.log('Using direct transaction builder for browser compatibility...');
