@@ -15,8 +15,32 @@ import CustomWalletButton from '../wallet/CustomWalletButton';
 // Simple wallet connection button using the standard WalletMultiButton with fallback
 function ConnectButton({ compact = false }: { compact?: boolean }) {
   const { publicKey, connected } = useWallet();
+  const [mounted, setMounted] = useState(false);
 
-  // Direct button implementation for reliability
+  // Ensure this component only renders wallet UI on the client **after** hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Server-side (or pre-hydration) placeholder to avoid markup mismatch
+  if (!mounted) {
+    return (
+      <button
+        className="rounded-full px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+        style={{
+          minWidth: compact ? '100px' : '160px',
+          height: '40px',
+          fontSize: '14px',
+          fontFamily: 'var(--font-inter-tight)',
+        }}
+        disabled
+      >
+        Connect
+      </button>
+    );
+  }
+
+  // Direct button implementation for reliability once mounted
   return (
     <div className="wallet-adapter-dropdown">
       {connected ? (
@@ -29,12 +53,12 @@ function ConnectButton({ compact = false }: { compact?: boolean }) {
             fontFamily: 'var(--font-inter-tight)',
           }}
           onClick={() => {
-            // This manually triggers the standard wallet modal
+            // Trigger the standard wallet modal
             document.querySelector('.wallet-adapter-modal-wrapper')?.classList.add('wallet-adapter-modal-wrapper-active');
             document.querySelector('.wallet-adapter-modal')?.classList.add('wallet-adapter-modal-fade-in');
           }}
         >
-          {publicKey ? publicKey.toString().slice(0, 4) + '...' + publicKey.toString().slice(-4) : 'Connect'}
+          {publicKey ? `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}` : 'Connect'}
         </button>
       ) : (
         <WalletMultiButton 
