@@ -1,0 +1,418 @@
+{
+  "accounts": [
+    {
+      "name": "MintAuthority",
+      "type": {
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": { "defined": "publicKey" }
+          },
+          {
+            "name": "admin",
+            "type": { "defined": "publicKey" }
+          },
+          {
+            "name": "tokenName",
+            "type": "string"
+          },
+          {
+            "name": "tokenSymbol",
+            "type": "string"
+          },
+          {
+            "name": "tokenUri",
+            "type": "string"
+          },
+          {
+            "name": "isInitialized",
+            "type": "bool"
+          }
+        ],
+        "kind": "struct"
+      }
+    },
+    {
+      "name": "UserProfile",
+      "type": {
+        "fields": [
+          {
+            "name": "user",
+            "type": { "defined": "publicKey" }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "tier",
+            "type": "u8"
+          },
+          {
+            "name": "totalInvested",
+            "type": "u64"
+          }
+        ],
+        "kind": "struct"
+      }
+    },
+    {
+      "name": "Project",
+      "type": {
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority",
+            "type": { "defined": "publicKey" }
+          },
+          {
+            "name": "vault",
+            "type": { "defined": "publicKey" }
+          },
+          {
+            "name": "totalRaised",
+            "type": "u64"
+          }
+        ],
+        "kind": "struct"
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "msg": "Unauthorized access",
+      "name": "Unauthorized"
+    },
+    {
+      "code": 6001,
+      "msg": "Invalid token account",
+      "name": "InvalidTokenAccount"
+    },
+    {
+      "code": 6002,
+      "msg": "Mint authority not initialized",
+      "name": "MintAuthorityNotInitialized"
+    },
+    {
+      "code": 6003,
+      "msg": "Arithmetic overflow occurred",
+      "name": "ArithmeticOverflow"
+    }
+  ],
+  "instructions": [
+    {
+      "accounts": [
+        {
+          "isMut": true,
+          "isSigner": true,
+          "name": "admin",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": true,
+          "name": "mint",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "mintAuthorityPda",
+          "type": "MintAuthority"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "mintAuthority",
+          "type": "MintAuthority"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "tokenProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "systemProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "rent",
+          "type": "publicKey"
+        }
+      ],
+      "args": [
+        {
+          "name": "authorityBump",
+          "type": "u8"
+        },
+        {
+          "name": "tokenName",
+          "type": "string"
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string"
+        },
+        {
+          "name": "tokenUri",
+          "type": "string"
+        }
+      ],
+      "name": "initializeMint"
+    },
+    {
+      "accounts": [
+        {
+          "isMut": true,
+          "isSigner": true,
+          "name": "admin",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "mint",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "mintAuthorityPda",
+          "type": "MintAuthority"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "mintAuthority",
+          "type": "MintAuthority"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "tokenProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "systemProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "rent",
+          "type": "publicKey"
+        }
+      ],
+      "args": [
+        {
+          "name": "authorityBump",
+          "type": "u8"
+        },
+        {
+          "name": "tokenName",
+          "type": "string"
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string"
+        },
+        {
+          "name": "tokenUri",
+          "type": "string"
+        }
+      ],
+      "name": "initializeExistingMint"
+    },
+    {
+      "accounts": [
+        {
+          "isMut": true,
+          "isSigner": true,
+          "name": "user",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "userProfile",
+          "type": "UserProfile"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "mint",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "userTokenAccount",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "mintAuthority",
+          "type": "MintAuthority"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "mintAuthorityPda",
+          "type": "MintAuthority"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "tokenProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "systemProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "rent",
+          "type": "publicKey"
+        }
+      ],
+      "args": [
+        {
+          "name": "userBump",
+          "type": "u8"
+        }
+      ],
+      "name": "registerUser"
+    },
+    {
+      "accounts": [
+        {
+          "isMut": true,
+          "isSigner": true,
+          "name": "authority",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "project",
+          "type": "Project"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "projectVault",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "systemProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "rent",
+          "type": "publicKey"
+        }
+      ],
+      "args": [
+        {
+          "name": "projectName",
+          "type": "string"
+        },
+        {
+          "name": "projectBump",
+          "type": "u8"
+        }
+      ],
+      "name": "initializeProject"
+    },
+    {
+      "accounts": [
+        {
+          "isMut": true,
+          "isSigner": true,
+          "name": "investor",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "userProfile",
+          "type": "UserProfile"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "project",
+          "type": "Project"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "investorTokenAccount",
+          "type": "publicKey"
+        },
+        {
+          "isMut": true,
+          "isSigner": false,
+          "name": "projectVault",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "mint",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "tokenProgram",
+          "type": "publicKey"
+        },
+        {
+          "isMut": false,
+          "isSigner": false,
+          "name": "systemProgram",
+          "type": "publicKey"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ],
+      "name": "investInProject"
+    }
+  ],
+  "types": [],
+  "name": "otonom_program",
+  "version": "0.1.0"
+}

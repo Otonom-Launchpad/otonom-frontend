@@ -29,6 +29,9 @@ export const OFUND_MINT = new PublicKey(TOKEN_MINT_STRING);
 // Create alias for backward compatibility
 export const TOKEN_MINT_ADDRESS = OFUND_MINT;
 
+// Define and export the commitment level
+export const COMMITMENT = 'confirmed' as const;
+
 // Get connection based on environment
 export const getConnection = () => {
   console.log('Creating Solana connection for network:', SOLANA_NETWORK);
@@ -39,7 +42,7 @@ export const getConnection = () => {
   
   console.log('Using RPC endpoint:', endpoint);
   return new Connection(endpoint, {
-    commitment: 'confirmed',
+    commitment: COMMITMENT,
     confirmTransactionInitialTimeout: 60000 // 60 seconds timeout for transaction confirmation
   });
 };

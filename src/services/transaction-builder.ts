@@ -20,6 +20,9 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import { Buffer } from 'buffer';
 import { PROGRAM_ID } from '@/lib/solana-config';
+import { Idl, utils } from '@coral-xyz/anchor';
+import { sha256 } from 'js-sha256';
+import { getProgram } from './anchor-program';
 
 /**
  * The OFund program ID - exported as a constant for consistency
@@ -27,27 +30,25 @@ import { PROGRAM_ID } from '@/lib/solana-config';
 
 // Import the IDL and proper type definition
 import rawIdl from '@/lib/ofund-idl.json';
-import { BorshInstructionCoder, Idl, BorshAccountsCoder } from '@project-serum/anchor';
 
 // Cast the imported JSON to the Idl type to satisfy TypeScript
 const idl = rawIdl as unknown as Idl;
 
-// Create the instruction coder from the IDL
-const instructionCoder = new BorshInstructionCoder(idl);
+console.log('[TB] Raw IDL (version & name):', JSON.stringify({ version: (idl as any).metadata?.version || (idl as any).version, name: (idl as any).metadata?.name || (idl as any).name, instructionsLength: idl.instructions?.length }));
 
 // Get instruction discriminators from the IDL using Anchor's coder
 const INSTRUCTION_DISCRIMINATORS = {
   // From the IDL: registerUser instruction (camelCase in IDL)
-  registerUser: instructionCoder.encode('registerUser', {}).slice(0, 8),
+  registerUser: Buffer.from(sha256.digest('instruction:registerUser')).slice(0, 8),
   
   // From the IDL: investInProject instruction (camelCase in IDL)
-  investInProject: instructionCoder.encode('investInProject', {}).slice(0, 8),
+  investInProject: Buffer.from(sha256.digest('instruction:investInProject')).slice(0, 8),
   
   // From the IDL: initializeProject instruction (camelCase in IDL)
-  initializeProject: instructionCoder.encode('initializeProject', {}).slice(0, 8),
+  initializeProject: Buffer.from(sha256.digest('instruction:initializeProject')).slice(0, 8),
   
   // From the IDL: initializeExistingMint instruction (camelCase in IDL)
-  initializeExistingMint: instructionCoder.encode('initializeExistingMint', {}).slice(0, 8),
+  initializeExistingMint: Buffer.from(sha256.digest('instruction:initializeExistingMint')).slice(0, 8),
 };
 
 /**
@@ -184,8 +185,6 @@ export function createInitializeUserProfileInstruction(
   });
 }
 
-// Delete duplicate functions - already defined below
-
 /**
  * Create an instruction to initialize a project using the initializeProject instruction
  * @param payer The project creator's wallet address that will pay for the transaction
@@ -251,17 +250,30 @@ export async function getProjectVaultAddress(
   connection: Connection,
   projectPda: PublicKey,
 ): Promise<PublicKey> {
-  const info = await connection.getAccountInfo(projectPda);
-  if (!info) {
-    throw new Error('Project account not found on chain');
+  const program = await getProgram(); // Await the async function
+  if (!program) {
+    // It's crucial that the program is initialized before this function is called.
+    // Consider awaiting initializeProgram() if it's not guaranteed.
+    console.error('[TB] Anchor program is not initialized in getProjectVaultAddress. Attempting to initialize...');
+    // Potentially: await initializeProgram(wallet, connection); // This might require wallet/connection context
+    // For now, let's throw, assuming program should be ready.
+    throw new Error('Anchor program is not initialized in getProjectVaultAddress');
   }
-  // Decode via Anchor account coder
-  const accountsCoder = new BorshAccountsCoder(idl);
-  const decoded: any = accountsCoder.decode('Project', info.data);
-  if (!decoded || !decoded.vault) {
-    throw new Error('Failed to decode project account');
+
+  // Fetch on-chain Project account data
+  const projectAccountInfo = await connection.getAccountInfo(projectPda);
+  if (!projectAccountInfo) {
+    throw new Error(`Project account not found: ${projectPda.toBase58()}`);
   }
-  return decoded.vault as PublicKey;
+
+  // Decode using the program's account coder
+  // Ensure 'Project' matches the casing in your IDL's accounts section
+  const decodedProject = await program.coder.accounts.decode('Project', projectAccountInfo.data);
+
+  if (!decodedProject || !decodedProject.vault) {
+    throw new Error('Failed to decode project account or vault address missing');
+  }
+  return decodedProject.vault as PublicKey;
 }
 
 /**

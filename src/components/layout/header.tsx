@@ -10,11 +10,9 @@ import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from
 
 // Import WalletMultiButton for standard wallet connection
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import CustomWalletButton from '../wallet/CustomWalletButton';
 
 // Simple wallet connection button using the standard WalletMultiButton with fallback
 function ConnectButton({ compact = false }: { compact?: boolean }) {
-  const { publicKey, connected } = useWallet();
   const [mounted, setMounted] = useState(false);
 
   // Ensure this component only renders wallet UI on the client **after** hydration
@@ -40,39 +38,19 @@ function ConnectButton({ compact = false }: { compact?: boolean }) {
     );
   }
 
-  // Direct button implementation for reliability once mounted
+  // Once mounted, always render WalletMultiButton and let it handle its own state
+  // The WalletMultiButton will show connect, connected address, and disconnect options appropriately.
   return (
-    <div className="wallet-adapter-dropdown">
-      {connected ? (
-        <button 
-          className="wallet-adapter-button wallet-adapter-button-trigger rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
-          style={{
-            minWidth: compact ? '100px' : '160px',
-            height: '40px',
-            fontSize: '14px',
-            fontFamily: 'var(--font-inter-tight)',
-          }}
-          onClick={() => {
-            // Trigger the standard wallet modal
-            document.querySelector('.wallet-adapter-modal-wrapper')?.classList.add('wallet-adapter-modal-wrapper-active');
-            document.querySelector('.wallet-adapter-modal')?.classList.add('wallet-adapter-modal-fade-in');
-          }}
-        >
-          {publicKey ? `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}` : 'Connect'}
-        </button>
-      ) : (
-        <WalletMultiButton 
-          className="rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
-          style={{
-            minWidth: compact ? '100px' : '160px',
-            height: '40px',
-            fontSize: '14px',
-            fontFamily: 'var(--font-inter-tight)',
-          }}
-        />
-      )}
-    </div>
-  )
+    <WalletMultiButton 
+      className="rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white" 
+      style={{
+        minWidth: compact ? '100px' : '160px',
+        height: '40px',
+        fontSize: '14px',
+        fontFamily: 'var(--font-inter-tight)',
+      }}
+    />
+  );
 }
 
 export function Header() {
