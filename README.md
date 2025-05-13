@@ -1,8 +1,13 @@
 # Otonom Fund Frontend
 
-This is the frontend for the Otonom Fund platform, a multichain launchpad for AI startups built on Solana. This project was developed for the Solana Breakout Hackathon.
+**LIVE HACKATHON MVP: [https://pad.otonom.fund](https://pad.otonom.fund)**
+**(Main Project Site, Litepaper & Pitch Deck: [https://otonom.fund](https://otonom.fund))**
 
-This is a [Next.js](https://nextjs.org) project with integrated Solana blockchain functionality.
+This is the Next.js frontend for the Otonom Fund, a decentralized launchpad for AI startups on the Solana blockchain. The ultimate aim is to evolve Otonom Fund into a fully community-governed Decentralized Autonomous Organization (DAO), featuring an innovative **Dual-Token Stability Model** to enhance investor security and platform utility.
+
+**For a comprehensive overview of the Otonom Fund project, including its architecture, smart contract details, overall setup guides, and other documentation, please refer to the main [Otonom Fund Documentation Hub](https://github.com/Otonom-Launchpad/otonom-docs/blob/main/README.md).**
+
+This frontend allows users to connect their Solana wallets, interact with the Otonom Fund smart contracts on the devnet, create user profiles, and explore AI project listings. This project was developed for the Solana Breakout Hackathon.
 
 ## Getting Started
 
@@ -24,37 +29,25 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
 ## Solana Integration
 
-This project includes direct integration with Solana blockchain using:
+This project includes direct integration with the Solana blockchain using:
 
-- **Web3.js**: For blockchain transactions and account management
-- **@solana/spl-token**: For token operations including Associated Token Accounts (ATAs)
-- **@solana/wallet-adapter-react**: For wallet connection and signing
+- **Web3.js / @solana/web3.js**: For blockchain transactions and account management.
+- **@solana/spl-token**: For SPL token operations, including Associated Token Accounts (ATAs).
+- **@solana/wallet-adapter-react & related packages**: For seamless wallet connection (e.g., Phantom) and transaction signing.
+- **Anchor/BN.js**: For interacting with Anchor programs and handling large numbers.
 
 ### Program Integration
 
-The frontend interacts with a custom Anchor program deployed on Solana devnet. Key features:
+The frontend is configured to interact with our custom Anchor program deployed on the Solana devnet (Program ID: `CWYLQDPfH6eywYGJfrSdX2cVMczm88x3V2Rd4tcgk4jf`). Key features of this integration include:
 
-- Manual transaction building with proper account structure
-- Custom instruction serialization for Anchor compatibility
-- Support for project initialization and investment workflows
-- Real on-chain transactions with explorer verification
+- Manual transaction building with proper account structure for Anchor program calls.
+- Custom instruction data serialization compatible with the Anchor program.
+- Support for on-chain operations such as user profile creation and project initialization.
+- All blockchain transactions are real and verifiable on the Solana Explorer (devnet).
+
+For details on the smart contract's source code, architecture, and deployment, please see the [otonom-contracts repository](https://github.com/Otonom-Launchpad/otonom-contracts).
 
 ### Development and Testing
 
