@@ -247,6 +247,12 @@ export function InvestButton({
       // Basic check for common Solana transaction errors (can be expanded)
       if (errorMessage.includes('Transaction simulation failed')) {
         errorMessage = 'Transaction simulation failed. Check your balance or network status.';
+      } else if (errorMessage.includes('already been processed')) {
+        errorMessage = 'This transaction was already processed. Your previous investment likely succeeded.';
+        toast.success('Investment already processed!', {
+          description: 'The transaction was previously confirmed on-chain.',
+        });
+        return;
       } else if (errorMessage.includes('blockhash')) {
         errorMessage = 'Transaction expired. Please try again.';
       }

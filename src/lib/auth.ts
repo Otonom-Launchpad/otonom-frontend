@@ -68,7 +68,13 @@ export const getCurrentUser = async () => {
   const { data, error } = await safeSupabase.auth.getUser();
   
   if (error) {
-    console.error('Error getting current user:', error);
+    // Suppress the noisy AuthSessionMissingError except in development
+    const isAuthSessionMissing =
+      error instanceof Error && error.message.includes('Auth session missing');
+
+    if (!isAuthSessionMissing || process.env.NODE_ENV === 'development') {
+      console.warn('Error getting current user:', error);
+    }
     return null;
   }
   

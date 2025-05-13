@@ -416,7 +416,7 @@ export async function sendTransaction(
   const transaction = new Transaction().add(instruction);
   
   // Get a recent blockhash for the transaction
-  const { blockhash } = await connection.getLatestBlockhash();
+  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   transaction.recentBlockhash = blockhash;
   transaction.feePayer = wallet.publicKey;
 
@@ -432,6 +432,15 @@ export async function sendTransaction(
 
   console.log('[TX_BUILDER] Transaction sent, signature:', signature);
   console.log(`[TX_BUILDER] View on explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+
+  // Wait for confirmation so that subsequent instructions see the updated state
+  await connection.confirmTransaction({
+    signature,
+    blockhash,
+    lastValidBlockHeight,
+  }, 'confirmed');
+
+  console.log('[TX_BUILDER] Transaction confirmed');
 
   // Return the transaction signature
   return signature;
