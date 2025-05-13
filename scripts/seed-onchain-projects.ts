@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Connection, Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
 import { Program, AnchorProvider, Wallet } from '@project-serum/anchor';
-import { getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { createInitializeAccountInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 /**
  * Seed on-chain Project accounts for all projects defined in PROJECT_NAMES.
@@ -56,23 +56,32 @@ async function main() {
     const [projectPda, bump] = await findProjectPDA(name);
     console.log(`Project PDA: ${projectPda.toBase58()}`);
 
-    // Ensure vault ATA owned by project PDA (off-curve) — always, even if project already exists
-    const projectVault = await getAssociatedTokenAddress(OFUND_MINT, projectPda, true);
-    await getOrCreateAssociatedTokenAccount(
-      connection,
-      keypair, // payer
-      OFUND_MINT,
-      projectPda,
-      true // owner off-curve
-    );
-    console.log('Project vault ATA ensured:', projectVault.toBase58());
-
+    // Check if the project account already exists on-chain
     const info = await connection.getAccountInfo(projectPda);
-    // If project data already exists, no need to initialize again
     if (info) {
-      console.log('✅ Project already initialized, vault verified.');
+      console.log('✅ Project already initialized. Skipping…');
       continue;
     }
+
+    // --- Create project vault (token account owned by the project PDA) ---
+    const vaultKeypair = Keypair.generate();
+    const rentLamports = await connection.getMinimumBalanceForRentExemption(165);
+
+    const createVaultAccountIx = SystemProgram.createAccount({
+      fromPubkey: keypair.publicKey,
+      newAccountPubkey: vaultKeypair.publicKey,
+      space: 165, // size of a token account
+      lamports: rentLamports,
+      programId: TOKEN_PROGRAM_ID,
+    });
+
+    const initVaultIx = createInitializeAccountInstruction(
+      vaultKeypair.publicKey, // account to initialise
+      OFUND_MINT,             // token mint
+      keypair.publicKey,      // owner must equal authority per program constraint
+    );
+
+    console.log(`Vault account (new): ${vaultKeypair.publicKey.toBase58()}`);
 
     try {
       const txSig = await program.methods
@@ -80,11 +89,12 @@ async function main() {
         .accounts({
           authority: keypair.publicKey,
           project: projectPda,
-          projectVault,
+          projectVault: vaultKeypair.publicKey,
           systemProgram: SystemProgram.programId,
           rent: SYSVAR_RENT_PUBKEY,
         })
-        .signers([keypair])
+        .preInstructions([createVaultAccountIx, initVaultIx])
+        .signers([keypair, vaultKeypair])
         .rpc();
       console.log('✅ Initialized on-chain. Tx:', txSig);
       console.log('Explorer:', `https://explorer.solana.com/tx/${txSig}?cluster=${NETWORK}`);

@@ -87,11 +87,15 @@ const findProjectPda = async (projectName: string): Promise<PublicKey> => {
 const DEMO_PROJECTS: Record<string, { publicKey: string, vault: string }> = {
   'Neural Bridge': {
     publicKey: 'HvwC9QSAzvGXhhVrgPmauVwFWcYZhne3hVot9EbHuFTm',
-    vault: 'GZrjpc3d4jmh4pvUKDHvQgmY5vTsWkEVgQwUT7XimjuL'
+    vault: 'GZrjpc3d4jmh4pvUKDHvQgmY5vTsWkEVgQj12dzpEGfcNF'
   },
-  'Quantum AI': {
-    publicKey: '9m5oPnW8hJLpHM3m3kgvFrH9R1HatuHkq2gqtM5hAkY8',
-    vault: 'BBBXxaaSpiRoCrQQNg1o8fLHVuNZt67Qj12dzpEGfcNF'
+  'AI Fusion': {
+    publicKey: '2cBY6m644XPeaREpJ9Ku2cdTsMKnBSdtd1z9Fe9AWNeZ',
+    vault: 'uekZokekkCkMbyfSxqNRt7d6jX4HsVujF2RvfYeLLQo'
+  },
+  'QuantumAI': {
+    publicKey: 'DhdherFPDd7jeuctJd9Du5FMjZ7e5sZKAWNFMkco25sf',
+    vault: '3WXNm9mjRGx2K4wMaPt13gVs3HBkPGtb2LhvHDYrqeA3'
   }
   // Add more demo projects as needed
 };

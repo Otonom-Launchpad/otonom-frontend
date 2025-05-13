@@ -17,6 +17,33 @@ interface ProjectCardProps {
   isPublic?: boolean;
 }
 
+// Helper function to identify featured projects by ID
+function isFeaturedProject(projectId: string | number, projectName?: string): boolean {
+  // Check based on UUID for featured projects
+  const featuredProjectIds = [
+    'f10c5123-0f73-48c6-be9d-ca2478051916', // Neural Bridge
+    '1b4115dc-7280-4b90-8c23-0034fb05fdf1', // AI Fusion
+    'aa9ef18d-1644-4af4-b1e8-f5f1d95eccf3', // Cortex Mind 
+    '02d0b171-7268-4155-b79d-fea9b42d8a2b',  // QuantumAI (from fix-project-images.ts)
+    'quantumai'  // QuantumAI (in case it's using the slug)
+  ];
+  
+  // Also check based on project name for additional safety
+  const featuredNames = ['Neural Bridge', 'AI Fusion', 'QuantumAI', 'Cortex Mind'];
+  
+  // Ensure we return a boolean
+  if (typeof projectId === 'string' && featuredProjectIds.includes(projectId.toLowerCase())) {
+    return true;
+  }
+  
+  // Check based on name as fallback
+  if (projectName && featuredNames.includes(projectName)) {
+    return true;
+  }
+  
+  return false;
+}
+
 export function ProjectCard({
   id,
   name,
@@ -55,7 +82,12 @@ export function ProjectCard({
         className="h-80 bg-gradient-to-br from-slate-100 to-slate-200 relative"
         style={{ backgroundImage: `url(${imageUrl || placeholderImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
-        {status && (
+        {/* If in the Explore section (non-featured projects), always show as Upcoming */}
+        {(!isFeaturedProject(id, name) && typeof id === 'number') ? (
+          <div className="absolute top-3 right-3 text-xs px-2 py-1 rounded-md font-medium bg-yellow-100 text-yellow-800">
+            Upcoming
+          </div>
+        ) : (
           <div className={`absolute top-3 right-3 text-xs px-2 py-1 rounded-md font-medium ${
             status === 'Active' ? 'bg-green-100 text-green-800' : 
             status === 'Completed' ? 'bg-blue-100 text-blue-800' : 
@@ -104,11 +136,24 @@ export function ProjectCard({
           </div>
         )}
 
-        <Link href={`/project/${id}`} className="block mt-6">
-          <Button className="w-full bg-black hover:bg-black/80 text-white rounded-full py-3 h-auto font-medium">
-            View Project
-          </Button>
-        </Link>
+        {/* For featured projects, keep the link active */}
+        {isFeaturedProject(id, name) ? (
+          <Link href={`/project/${id}`} className="block mt-6">
+            <Button className="w-full bg-black hover:bg-black/80 text-white rounded-full py-3 h-auto font-medium">
+              View Project
+            </Button>
+          </Link>
+        ) : (
+          /* For all other projects, show a disabled "Coming Soon" button */
+          <div className="block mt-6">
+            <Button 
+              disabled 
+              className="w-full bg-gray-700 text-white rounded-full py-3 h-auto font-medium cursor-not-allowed opacity-80"
+            >
+              Coming Soon
+            </Button>
+          </div>
+        )}
       </div>
     </Card>
   );

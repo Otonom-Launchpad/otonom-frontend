@@ -381,6 +381,7 @@ export default function ProjectDetailsPage() {
                 </div>
               </div>
               
+              {/* InvestButton for project investments */}
               <InvestButton
                 projectName={project.name}
                 amount={parseFloat(investmentAmount) || 0}
@@ -839,9 +840,13 @@ export default function ProjectDetailsPage() {
                     </div>
                   </div>
                   
-                  <button className="w-full bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white py-3 rounded-[100px] font-medium transition-all duration-200">
-                    Invest Now
-                  </button>
+                  <InvestButton 
+                    projectName={project.name}
+                    amount={parseFloat(investmentAmount) || 0} 
+                    tokenSymbol={project.project_token_symbol}
+                    tokenPrice={project.project_token_rate}
+                    className="w-full bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white py-3 rounded-[100px] font-medium transition-all duration-200 h-auto"
+                  />
                   
                   <p className="text-xs text-gray-500 mt-2 text-center">
                     Tier {project.tier_requirement} or higher required
