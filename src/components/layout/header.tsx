@@ -14,7 +14,7 @@ import CustomWalletButton from '../wallet/CustomWalletButton';
 
 // Simple wallet connection button using the standard WalletMultiButton with fallback
 function ConnectButton({ compact = false }: { compact?: boolean }) {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, disconnect } = useWallet();
   const [mounted, setMounted] = useState(false);
 
   // Ensure this component only renders wallet UI on the client **after** hydration
@@ -52,10 +52,12 @@ function ConnectButton({ compact = false }: { compact?: boolean }) {
             fontSize: '14px',
             fontFamily: 'var(--font-inter-tight)',
           }}
-          onClick={() => {
-            // Trigger the standard wallet modal
-            document.querySelector('.wallet-adapter-modal-wrapper')?.classList.add('wallet-adapter-modal-wrapper-active');
-            document.querySelector('.wallet-adapter-modal')?.classList.add('wallet-adapter-modal-fade-in');
+          onClick={async () => {
+            try {
+              await disconnect();
+            } catch (e) {
+              console.error("Error disconnecting wallet:", e);
+            }
           }}
         >
           {publicKey ? `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}` : 'Connect'}
@@ -129,7 +131,7 @@ export function Header() {
               href="/dashboard" 
               className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
             >
-              My Dashboard
+              My Dashboard (WIP)
             </Link>
           </div>
         </nav>
@@ -187,7 +189,7 @@ export function Header() {
               className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/dashboard' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              My Dashboard
+              My Dashboard (WIP)
             </Link>
             <div className="flex justify-center px-3 py-5 mt-2 mb-2">
               <Link href="https://www.linkedin.com/company/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">

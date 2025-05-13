@@ -21,22 +21,22 @@ export const CustomWalletButton: FC<CustomWalletButtonProps> = ({
       if (connected) {
         try {
           await disconnectWallet();
-          disconnect();
         } catch (e) {
           console.error("Error disconnecting:", e);
-          disconnect();
         }
       } else {
         setVisible(true);
       }
     },
-    [connected, disconnect, disconnectWallet, setVisible]
+    [connected, disconnectWallet, setVisible]
   );
 
   // Simplify button text logic
-  const buttonText = connected 
-    ? 'Guest'
-    : loading ? 'Connecting...' : (compact ? 'Connect' : 'Connect Wallet');
+  const buttonText = loading 
+    ? 'Processing...' 
+    : connected 
+    ? 'Disconnect' 
+    : (compact ? 'Connect' : 'Connect Wallet');
 
   return (
     <button

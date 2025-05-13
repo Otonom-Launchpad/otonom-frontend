@@ -2,28 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global wallet button styling override */
-.wallet-adapter-button {
-  background-color: black !important;
-  border-radius: 9999px !important;
-  padding: 0.5rem 1.25rem !important;
-  font-family: var(--font-inter-tight) !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
-}
-
-.wallet-adapter-button:hover {
-  background-color: rgba(0, 0, 0, 0.8) !important;
-}
-
-.wallet-adapter-button-trigger:after {
-  content: '' !important;
-}
-
-.wallet-adapter-button img {
-  display: none !important;
-}
-
 /* Project status tag styling */
 .project-status-tag {
   display: inline-block !important;
@@ -35,7 +13,7 @@
   font-weight: 500 !important;
   text-transform: capitalize !important;
 }
- 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -43,67 +21,67 @@
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
- 
+
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
- 
+
     --primary: 276 100% 50%; /* #9d00ff - Otonom Fund brand color */
     --primary-foreground: 210 40% 98%;
- 
+
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
- 
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
- 
+
     --accent: 276 100% 95%; /* Light version of brand color for accent backgrounds */
     --accent-foreground: 276 100% 50%;
- 
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 276 100% 50%; /* Brand color for focus rings */
- 
+
     --radius: 0.5rem;
- 
+
     --chart-1: 276 100% 50%; /* Brand color */
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
- 
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
- 
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
- 
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
- 
+
     --primary: 276 100% 60%; /* #9d00ff - Slightly brighter in dark mode */
     --primary-foreground: 210 40% 98%;
- 
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
- 
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
- 
+
     --accent: 276 50% 25%; /* Darker version of brand color for dark mode accents */
     --accent-foreground: 210 40% 98%;
- 
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 276 100% 60%;
-    
+
     --chart-1: 276 100% 60%; /* Brand color for dark mode */
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -111,7 +89,7 @@
     --chart-5: 340 75% 55%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
@@ -120,3 +98,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Hide ONLY the library's default modal, not our custom one */
+  .wallet-adapter-modal:not([data-otonom]) {
+    display: none !important;
+  }
+ }

@@ -43,6 +43,7 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
   const totalROI = totalInvested > 0 ? 100 : 0; // 100% ROI for demo if any investments exist
   
   // Fetch REAL on-chain investments from Solana blockchain
+  /*
   useEffect(() => {
     if (!wallet.connected || !wallet.publicKey) return;
     
@@ -84,6 +85,7 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
     
     return () => clearInterval(refreshInterval);
   }, [wallet.connected, wallet.publicKey]);
+  */
 
   return (
     <div className="space-y-8 relative">
@@ -178,7 +180,7 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
         </div>
         
         {/* Investments list component with on-chain data */}
-        <InvestmentsList />
+        {/* <InvestmentsList /> */}
       </div>
     </div>
   );

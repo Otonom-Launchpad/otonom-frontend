@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import Image from 'next/image';
-import './wallet-modal.css';
+import './custom-wallet-modal.css';
 
 interface CustomWalletModalProviderProps {
   children: ReactNode;
@@ -135,16 +135,16 @@ const CustomWalletModal: FC<{ visible: boolean; onClose: () => void }> = ({
   );
 
   return (
-    <div className={`wallet-adapter-modal ${visible ? 'wallet-adapter-modal-fade-in' : ''}`} onClick={onClose}>
-      <div className="wallet-adapter-modal-wrapper" onClick={(e) => e.stopPropagation()}>
+    <div data-otonom className={`custom-wallet-modal ${visible ? 'custom-wallet-modal-fade-in' : ''}`} onClick={onClose}>
+      <div className="custom-wallet-modal-wrapper" onClick={(e) => e.stopPropagation()}>
         <button 
           onClick={onClose}
-          className="wallet-adapter-modal-button-close"
+          className="custom-wallet-modal-button-close"
         >
           ×
         </button>
         
-        <h1 className="wallet-adapter-modal-title">Connect a wallet to continue</h1>
+        <h1 className="custom-wallet-modal-title">Connect Solana wallet to continue</h1>
         
         {error && (
           <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md mb-4">
@@ -152,20 +152,20 @@ const CustomWalletModal: FC<{ visible: boolean; onClose: () => void }> = ({
           </div>
         )}
         
-        <div className="wallet-adapter-modal-list">
+        <div className="custom-wallet-modal-list">
           {phantomWallet ? (
             <button 
               onClick={() => handleWalletClick(phantomWallet)}
-              className={`wallet-adapter-modal-list-item ${connecting && selectedWallet === 'Phantom' ? 'opacity-70' : ''}`}
+              className={`custom-wallet-modal-list-item text-white ${connecting && selectedWallet === 'Phantom' ? 'opacity-70' : ''}`} 
               disabled={connecting}
             >
               <Image
                 src="/assets/wallets/phantom.svg"
-                width={28}
-                height={28}
+                width={40} 
+                height={40} 
                 alt="Phantom"
               />
-              <div className="wallet-adapter-modal-list-item-name">
+              <div className="custom-wallet-modal-list-item-name">
                 {connecting && selectedWallet === 'Phantom' ? 'Connecting...' : 'Phantom'}
               </div>
               {connecting && selectedWallet === 'Phantom' && (
@@ -177,15 +177,15 @@ const CustomWalletModal: FC<{ visible: boolean; onClose: () => void }> = ({
               href="https://phantom.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="wallet-adapter-modal-list-item"
+              className="custom-wallet-modal-list-item"
             >
               <Image
                 src="/assets/wallets/phantom.svg"
-                width={28}
-                height={28}
+                width={40} 
+                height={40} 
                 alt="Phantom"
               />
-              <div className="wallet-adapter-modal-list-item-name">
+              <div className="custom-wallet-modal-list-item-name">
                 Phantom (Install)
               </div>
             </a>

@@ -6,7 +6,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { getOfundBalance } from '@/services/token-service';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { getConnection } from '@/lib/solana-config';
 
 interface InvestButtonProps {
@@ -88,6 +88,9 @@ async function createUserProfileIfNeeded(wallet: WalletContextState): Promise<bo
     return true;
   } catch (error) {
     console.error('Failed to create user profile / ATA:', error);
+    toast.error('Profile Error', {
+      description: 'Failed to check or create user profile. Please try again.',
+    });
     return false;
   }
 }
@@ -112,11 +115,8 @@ export function InvestButton({
   const handleInvest = async () => {
     // Input validation
     if (!amount || amount <= 0) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid investment amount greater than 0.",
-        variant: "destructive",
-        duration: 3000,
+      toast.error('Invalid Amount', {
+        description: 'Please enter a valid investment amount greater than 0.',
       });
       return;
     }
@@ -155,10 +155,8 @@ export function InvestButton({
       // Since we can't reliably check its existence in the browser without Anchor, we'll try to create it
       const profileOk = await createUserProfileIfNeeded(wallet);
       if (!profileOk) {
-        toast({
-          title: 'User setup failed',
+        toast.error('User setup failed', {
           description: 'Could not create your investor profile. Please try again.',
-          variant: 'destructive',
         });
         setIsProcessing(false);
         return; // Bail early – do NOT proceed to invest
@@ -227,60 +225,35 @@ export function InvestButton({
       
       console.log('Transaction successful!');
       console.log('Transaction signature:', signature);
-      console.log(`View on explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
-      
-      // Show success message with transaction link
-      toast({
-        title: "Investment Successful!",
-        description: (
-          <div className="mt-2">
-            <p>You've successfully invested ${amount} in {projectName}.</p>
-            <p className="mt-2">
-              <a 
-                href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary underline hover:text-primary/80"
-              >
-                View transaction on Solana Explorer
-              </a>
-            </p>
-          </div>
-        ),
-        duration: 8000,
+      console.log('View on explorer:', `https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+
+      // Show success toast
+      toast.success(`Investment successful!`, {
+        description: `Your $${amount} investment in ${projectName} was confirmed.`,
+        descriptionClassName: 'text-gray-800', // Added class for darker text
+        action: {
+          label: 'View on Explorer',
+          onClick: () => window.open(`https://explorer.solana.com/tx/${signature}?cluster=devnet`, '_blank'),
+        },
       });
       
     } catch (error: unknown) {
       console.error('INVESTMENT ERROR:', error);
-      
-      // Enhanced error logging
-      if (error instanceof Error) {
-        console.error('Error details:', error.message);
-        console.error('Stack trace:', error.stack);
-      } else {
-        console.error('Unknown error type:', typeof error);
-        console.error('Error stringified:', JSON.stringify(error));
-      }
-      
-      // More user-friendly error message
-      let errorMessage = 'Unknown error';
+
+      let errorMessage = 'An unknown error occurred during the transaction.';
       if (error instanceof Error) {
         errorMessage = error.message;
-        // Simplify error messages for better user experience
-        if (errorMessage.includes('Anchor program')) {
-          errorMessage = 'Blockchain program connection failed. Please try again.';
-        } else if (errorMessage.includes('Wallet not connected')) {
-          errorMessage = 'Wallet connection lost. Please reconnect your wallet.';
-        } else if (errorMessage.includes('JSON RPC') || errorMessage.includes('connection')) {
-          errorMessage = 'Network connection issue. Please check your internet and try again.';
-        }
       }
-      
-      toast({
-        title: "Investment Failed",
+      // Basic check for common Solana transaction errors (can be expanded)
+      if (errorMessage.includes('Transaction simulation failed')) {
+        errorMessage = 'Transaction simulation failed. Check your balance or network status.';
+      } else if (errorMessage.includes('blockhash')) {
+        errorMessage = 'Transaction expired. Please try again.';
+      }
+
+      // Show error toast using sonner
+      toast.error('Investment Failed', {
         description: `There was a problem processing your investment: ${errorMessage}`,
-        variant: "destructive",
-        duration: 5000,
       });
     } finally {
       setIsProcessing(false);
