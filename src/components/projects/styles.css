@@ -1,0 +1,12 @@
+.coming-soon-button {
+  background-color: #374151 !important;
+  color: white !important;
+  opacity: 1 !important;
+}
+
+.coming-soon-button:disabled {
+  background-color: #374151 !important;
+  color: white !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}

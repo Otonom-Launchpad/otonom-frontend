@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import './styles.css';
 
 interface ProjectCardProps {
   id: number | string;
@@ -148,7 +149,7 @@ export function ProjectCard({
           <div className="block mt-6">
             <Button 
               disabled 
-              className="w-full bg-gray-700 text-white rounded-full py-3 h-auto font-medium cursor-not-allowed opacity-80"
+              className="w-full text-white rounded-full py-3 h-auto font-medium cursor-not-allowed coming-soon-button"
             >
               Coming Soon
             </Button>
