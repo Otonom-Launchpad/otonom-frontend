@@ -42,7 +42,6 @@ next-env.d.ts
 
 # Experimental scripts
 /experiments/
-# Temporarily allowing access to init scripts for debugging
-#/scripts/init-*
+/scripts/
 /clean-build/
 /fresh-build/
