@@ -351,7 +351,7 @@ export default function ProjectDetailsPage() {
                   </span>
                 </div>
                 
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex justify-between text-xs">
                   <span className="text-gray-500">Token price:</span>
                   <span className="text-gray-400">${project.project_token_rate} USD</span>
                 </div>
@@ -397,7 +397,7 @@ export default function ProjectDetailsPage() {
                     <line x1="12" y1="16" x2="12" y2="12"></line>
                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
                   </svg>
-                  <span>By investing, you agree to our <a href="#" className="text-[#9d00ff] underline">Terms of Service</a> and <a href="#" className="text-[#9d00ff] underline">Investment Agreement</a></span>
+                  <span>By investing, you agree to our <a href="/terms" className="text-[#9d00ff] underline">Terms of Use</a> and <a href="/investment-agreement" className="text-[#9d00ff] underline">Investment Agreement</a></span>
                 </div>
               </div>
             </div>
