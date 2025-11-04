@@ -27,13 +27,13 @@ export default function ProjectError({
               <Button
                 variant="outline"
                 onClick={() => reset()}
-                className="border-[#9d00ff] text-[#9d00ff] hover:bg-[#9d00ff]/10"
+                className="border-[#FA6906] text-[#FA6906] hover:bg-[#FA6906]/10"
               >
                 Try Again
               </Button>
               
               <Link href="/projects">
-                <Button className="bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white">
+                <Button className="bg-[#FA6906] hover:bg-[#FA6906]/90 text-white">
                   Return to Projects
                 </Button>
               </Link>
@@ -42,7 +42,7 @@ export default function ProjectError({
           
           <p className="text-sm text-gray-500 mt-8">
             If this issue persists, please contact our support team at{' '}
-            <a href="mailto:support@otonom.fund" className="text-[#9d00ff] underline">
+            <a href="mailto:support@otonom.fund" className="text-[#FA6906] underline">
               support@otonom.fund
             </a>
           </p>

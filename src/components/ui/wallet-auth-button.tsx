@@ -52,7 +52,7 @@ export function WalletAuthButton() {
     return (
       <Button
         onClick={handleDisconnect}
-        className="rounded-full bg-[#9d00ff] text-white hover:bg-[#9d00ff]/80"
+        className="rounded-full bg-[#FA6906] text-white hover:bg-[#d95d05]"
       >
         {user && user.tier && user.tier > 0 ? `Tier ${user.tier} Investor` : 'Wallet Connected'}
       </Button>

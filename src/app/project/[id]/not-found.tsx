@@ -19,7 +19,7 @@ export default function ProjectNotFound() {
             
             <div className="flex justify-center">
               <Link href="/projects">
-                <Button className="bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white">
+                <Button className="bg-[#FA6906] hover:bg-[#FA6906]/90 text-white">
                   Browse All Projects
                 </Button>
               </Link>
@@ -28,7 +28,7 @@ export default function ProjectNotFound() {
           
           <p className="text-sm text-gray-500 mt-8">
             If you believe this is an error, please contact our support team at{' '}
-            <a href="mailto:support@otonom.fund" className="text-[#9d00ff] underline">
+            <a href="mailto:support@otonom.fund" className="text-[#FA6906] underline">
               support@otonom.fund
             </a>
           </p>

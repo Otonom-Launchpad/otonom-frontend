@@ -266,7 +266,7 @@ export default function ProjectDetailsPage() {
             {/* Project info aligned left */}
             <div className="text-white md:col-span-8 flex flex-col justify-center mt-0 md:mt-0">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[#9d00ff] px-2.5 py-0.5 text-xs font-medium">
+                <span className="text-[#FA6906] px-2.5 py-0.5 text-xs font-medium">
                   {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                 </span>
               </div>
@@ -279,7 +279,7 @@ export default function ProjectDetailsPage() {
                     href={project.website_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white hover:text-[#9d00ff] transition-colors font-medium"
+                    className="inline-flex items-center gap-2 text-white hover:text-[#FA6906] transition-colors font-medium"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
@@ -294,7 +294,7 @@ export default function ProjectDetailsPage() {
                   href="https://www.linkedin.com/company/cortex-mind" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-white hover:text-[#9d00ff] transition-colors font-medium"
+                  className="inline-flex items-center gap-2 text-white hover:text-[#FA6906] transition-colors font-medium"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
@@ -336,7 +336,7 @@ export default function ProjectDetailsPage() {
                           setInvestmentAmount('0');
                         }
                       }}
-                      className="w-full pl-7 pr-3 py-2 bg-transparent border-2 border-gray-500 rounded-md focus:outline-none focus:border-[#9d00ff] text-white text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-full pl-7 pr-3 py-2 bg-transparent border-2 border-gray-500 rounded-md focus:outline-none focus:border-[#FA6906] text-white text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min="0"
                       step="100"
                       placeholder="0"
@@ -359,12 +359,12 @@ export default function ProjectDetailsPage() {
               
               <div className="mb-10 mt-6 space-y-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#9d00ff]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#FA6906]"></div>
                   <span className="text-white">Project Status: <span 
                     style={{
                       display: 'inline-block',
-                      backgroundColor: '#9d00ff33',
-                      color: '#9d00ff',
+                      backgroundColor: '#FA690633',
+                      color: '#FA6906',
                       borderRadius: '9999px',
                       padding: '4px 12px',
                       marginLeft: '4px',
@@ -376,8 +376,8 @@ export default function ProjectDetailsPage() {
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#9d00ff]"></div>
-                  <span className="text-white">Sale Ends: <span className="bg-[#9d00ff]/10 text-[#9d00ff] font-medium px-2 py-0.5 rounded-full text-sm">{formatDate(project.end_date)}</span></span>
+                  <div className="w-3 h-3 rounded-full bg-[#FA6906]"></div>
+                  <span className="text-white">Sale Ends: <span className="bg-[#FA6906]/10 text-[#FA6906] font-medium px-2 py-0.5 rounded-full text-sm">{formatDate(project.end_date)}</span></span>
                 </div>
               </div>
               
@@ -397,7 +397,7 @@ export default function ProjectDetailsPage() {
                     <line x1="12" y1="16" x2="12" y2="12"></line>
                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
                   </svg>
-                  <span>By investing, you agree to our <a href="/terms" className="text-[#9d00ff] underline">Terms of Use</a> and <a href="/investment-agreement" className="text-[#9d00ff] underline">Investment Agreement</a></span>
+                  <span>By investing, you agree to our <a href="/terms" className="text-[#FA6906] underline">Terms of Use</a> and <a href="/investment-agreement" className="text-[#FA6906] underline">Investment Agreement</a></span>
                 </div>
               </div>
             </div>
@@ -461,7 +461,7 @@ export default function ProjectDetailsPage() {
                 </div>
                 
                 <div className="mt-2 mb-4">
-                  <Progress value={fundingProgress} className="h-2 bg-gray-800" indicatorClassName="bg-[#9d00ff]" />
+                  <Progress value={fundingProgress} className="h-2 bg-gray-800" indicatorClassName="bg-[#FA6906]" />
                   <div className="flex justify-between mt-1 text-xs text-[#707E89]">
                     <span>0%</span>
                     <span>{fundingProgress.toFixed(1)}%</span>
@@ -541,25 +541,25 @@ export default function ProjectDetailsPage() {
             <div className="mb-6 mt-4">
               <div className="flex space-x-8 border-b border-[#e5e7eb]">
                 <button 
-                  className={`py-3 px-1 font-semibold font-heading relative text-base ${activeTab === 'overview' ? 'text-[#9d00ff]' : 'text-[#111] hover:text-[#9d00ff]'}`}
+                  className={`py-3 px-1 font-semibold font-heading relative text-base ${activeTab === 'overview' ? 'text-[#FA6906]' : 'text-[#111] hover:text-[#FA6906]'}`}
                   onClick={() => setActiveTab('overview')}
                 >
                   Overview
-                  {activeTab === 'overview' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#9d00ff]"></div>}
+                  {activeTab === 'overview' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#FA6906]"></div>}
                 </button>
                 <button 
-                  className={`py-3 px-1 font-semibold font-heading relative text-base ${activeTab === 'tokenomics' ? 'text-[#9d00ff]' : 'text-[#111] hover:text-[#9d00ff]'}`}
+                  className={`py-3 px-1 font-semibold font-heading relative text-base ${activeTab === 'tokenomics' ? 'text-[#FA6906]' : 'text-[#111] hover:text-[#FA6906]'}`}
                   onClick={() => setActiveTab('tokenomics')}
                 >
                   Tokenomics
-                  {activeTab === 'tokenomics' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#9d00ff]"></div>}
+                  {activeTab === 'tokenomics' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#FA6906]"></div>}
                 </button>
                 <button 
-                  className={`py-3 px-1 font-semibold font-heading relative text-base ${activeTab === 'team' ? 'text-[#9d00ff]' : 'text-[#111] hover:text-[#9d00ff]'}`}
+                  className={`py-3 px-1 font-semibold font-heading relative text-base ${activeTab === 'team' ? 'text-[#FA6906]' : 'text-[#111] hover:text-[#FA6906]'}`}
                   onClick={() => setActiveTab('team')}
                 >
                   Team
-                  {activeTab === 'team' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#9d00ff]"></div>}
+                  {activeTab === 'team' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#FA6906]"></div>}
                 </button>
               </div>
             </div>
@@ -592,7 +592,7 @@ export default function ProjectDetailsPage() {
                     <div className="space-y-8 mb-12">
                       <div className="flex">
                         <div className="mr-4">
-                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#9d00ff]/10 text-[#9d00ff]">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FA6906]/10 text-[#FA6906]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                               <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -609,7 +609,7 @@ export default function ProjectDetailsPage() {
                       
                       <div className="flex">
                         <div className="mr-4">
-                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#9d00ff]/10 text-[#9d00ff]">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FA6906]/10 text-[#FA6906]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"></circle>
                               <polyline points="12 6 12 12 16 14"></polyline>
@@ -624,7 +624,7 @@ export default function ProjectDetailsPage() {
                       
                       <div className="flex">
                         <div className="mr-4">
-                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#9d00ff]/10 text-[#9d00ff]">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FA6906]/10 text-[#FA6906]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                             </svg>
@@ -656,12 +656,12 @@ export default function ProjectDetailsPage() {
                             alt={member.name}
                             width={100}
                             height={100}
-                            className="rounded-full object-cover w-[100px] h-[100px] border-2 border-[#9d00ff]/30"
+                            className="rounded-full object-cover w-[100px] h-[100px] border-2 border-[#FA6906]/30"
                           />
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-white">{member.name}</h3>
-                          <p className="text-sm text-[#9d00ff] mb-2 font-medium">{member.role}</p>
+                          <p className="text-sm text-[#FA6906] mb-2 font-medium">{member.role}</p>
                           <div className="text-sm text-[#707E89] leading-relaxed" 
                                dangerouslySetInnerHTML={{ __html: parseMarkdown(member.bio) }}>
                           </div>
@@ -710,11 +710,11 @@ export default function ProjectDetailsPage() {
                           <div key={key} className="bg-[#1a1a24] p-4 rounded-lg border border-gray-800">
                             <div className="flex justify-between items-center mb-2">
                               <span className="text-white font-medium capitalize">{key}</span>
-                              <span className="text-[#9d00ff] font-bold">{percentage}</span>
+                              <span className="text-[#FA6906] font-bold">{percentage}</span>
                             </div>
                             <div className="w-full bg-gray-800 h-6 rounded-full relative overflow-hidden">
                               <div 
-                                className="absolute top-0 left-0 h-full bg-[#9d00ff]" 
+                                className="absolute top-0 left-0 h-full bg-[#FA6906]" 
                                 style={{ width: numericValue + '%' }}
                               >
                                 <span className="sr-only">{percentage} allocated to {key}</span>
@@ -802,7 +802,7 @@ export default function ProjectDetailsPage() {
                   <p className="font-semibold font-heading text-black">Funding Progress</p>
                   <p className="font-semibold">{fundingProgress.toFixed(0)}%</p>
                 </div>
-                <Progress value={fundingProgress} className="h-2 bg-gray-200" indicatorClassName="bg-[#9d00ff]" />
+                <Progress value={fundingProgress} className="h-2 bg-gray-200" indicatorClassName="bg-[#FA6906]" />
                 <div className="flex justify-between mt-2 text-sm text-gray-600">
                   <p>${project.total_raised.toLocaleString()} raised</p>
                   <p>Goal: ${project.funding_goal.toLocaleString()}</p>
@@ -823,7 +823,7 @@ export default function ProjectDetailsPage() {
                         step="100"
                         value={investmentAmount || ''}
                         onChange={handleInvestmentAmountChange}
-                        className="block w-full pl-7 py-2 border-2 border-gray-300 rounded-md focus:border-[#9d00ff] focus:ring-[#9d00ff] sm:text-sm"
+                        className="block w-full pl-7 py-2 border-2 border-gray-300 rounded-md focus:border-[#FA6906] focus:ring-[#FA6906] sm:text-sm"
                         placeholder="0"
                       />
                     </div>
@@ -845,7 +845,7 @@ export default function ProjectDetailsPage() {
                     amount={parseFloat(investmentAmount) || 0} 
                     tokenSymbol={project.project_token_symbol}
                     tokenPrice={project.project_token_rate}
-                    className="w-full bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white py-3 rounded-[100px] font-medium transition-all duration-200 h-auto"
+                    className="w-full bg-[#FA6906] hover:bg-[#FA6906]/90 text-white py-3 rounded-[100px] font-medium transition-all duration-200 h-auto"
                   />
                   
                   <p className="text-xs text-gray-500 mt-2 text-center">

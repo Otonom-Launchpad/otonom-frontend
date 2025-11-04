@@ -13,13 +13,13 @@ export function HeroSection() {
           {/* Main heading */}
           
           <h1 className="text-4xl font-bold tracking-tight font-heading sm:text-5xl md:text-6xl mb-6">
-            Next Generation of
-            <div><span className="text-[#9d00ff]">AI Venture Funding</span></div>
+            Fund The
+            <div><span className="text-[#FA6906]">Conscious Future</span></div>
           </h1>
           
-          <p className="text-[#707E89] max-w-[600px] mx-auto mb-12 text-[20px] font-semibold font-heading leading-[1.1em]">
-            Otonom Fund connects breakthrough <span className="text-[#23272F]">AI projects</span><br />
-            with community funding, powered by blockchain.
+          <p className="text-[#707E89] max-w-[600px] mx-auto mb-12 text-[20px] font-semibold font-heading leading-[1.4em]">
+            Community funding for systems-level builders.<br />
+            <span className="text-[#23272F]">Transparent. Decentralized. Regenerative.</span>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -34,19 +34,19 @@ export function HeroSection() {
           {/* Stats section moved inside hero as requested */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 max-w-4xl w-full">
             <div className="text-center">
-              <div className="text-3xl font-bold font-heading text-[#9d00ff]">$2.8M+</div>
+              <div className="text-3xl font-bold font-heading text-[#FA6906]">$2.8M+</div>
               <div className="text-sm text-slate-600">Total Funded</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold font-heading text-[#9d00ff]">18</div>
+              <div className="text-3xl font-bold font-heading text-[#FA6906]">18</div>
               <div className="text-sm text-slate-600">Projects Launched</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold font-heading text-[#9d00ff]">4,200+</div>
+              <div className="text-3xl font-bold font-heading text-[#FA6906]">4,200+</div>
               <div className="text-sm text-slate-600">Community Members</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold font-heading text-[#9d00ff]">92%</div>
+              <div className="text-3xl font-bold font-heading text-[#FA6906]">92%</div>
               <div className="text-sm text-slate-600">Successful Projects</div>
             </div>
           </div>

@@ -85,9 +85,9 @@ export function ExploreProjectsSection() {
     <section className="py-16 md:py-24 bg-white">
       <div className="container px-4 md:px-6 mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-semibold tracking-tight mb-4 font-heading">Explore AI Projects</h2>
+          <h2 className="text-3xl font-semibold tracking-tight mb-4 font-heading">Explore Projects</h2>
           <p className="text-slate-600">
-            Discover and fund the most promising AI projects that are pushing the boundaries of what's possible in various industries.
+            Discover and fund the most promising ventures that are pushing the boundaries of what's possible across industries.
           </p>
         </div>
         

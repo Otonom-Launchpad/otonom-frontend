@@ -98,7 +98,7 @@ export function DashboardOverview({ user }: DashboardOverviewProps) {
             <p className="text-gray-600 mb-6">Connect your wallet to view your investment dashboard and portfolio.</p>
             <Button 
               onClick={() => setVisible(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white w-full rounded-full"
+              className="bg-[#FA6906] hover:bg-[#d95d05] text-white w-full rounded-full"
             >
               Connect Wallet
             </Button>

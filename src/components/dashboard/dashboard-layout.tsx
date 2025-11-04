@@ -57,7 +57,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       {`${wallet.publicKey.toString().slice(0, 6)}...${wallet.publicKey.toString().slice(-4)}`}
                     </p>
                     <p className="mb-1 text-xs text-gray-400">Tier Level</p>
-                    <p className="mb-3 text-sm font-medium text-purple-400">Tier 3</p>
+                    <p className="mb-3 text-sm font-medium text-[#fca04f]">Tier 3</p>
                     <p className="mb-1 text-xs text-gray-400">$OFUND Balance</p>
                     <p className="text-sm font-medium">100,000</p>
                   </div>
@@ -70,7 +70,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <p className="text-sm mb-4">Connect your wallet to view your dashboard</p>
                     <Button 
                       onClick={() => setVisible(true)}
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full"
+                      className="w-full bg-[#FA6906] hover:bg-[#d95d05] text-white rounded-full"
                     >
                       Connect Wallet
                     </Button>

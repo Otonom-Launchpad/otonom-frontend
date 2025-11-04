@@ -200,12 +200,12 @@ export function FeaturedProjectsSection() {
       <div className="container px-4 md:px-6 mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight font-heading mb-4">Featured AI Projects</h2>
+            <h2 className="text-3xl font-semibold tracking-tight font-heading mb-4">Featured Projects</h2>
             <p className="text-slate-600 max-w-[600px]">
-              Discover innovative AI solutions that are reshaping industries and creating new possibilities with blockchain technology.
+              Discover innovative ventures that are reshaping industries and creating new possibilities with conscious systems design.
             </p>
           </div>
-          <Link href="/projects" className="mt-4 md:mt-0 text-[#9d00ff] hover:underline font-medium">
+          <Link href="/projects" className="mt-4 md:mt-0 text-[#FA6906] hover:underline font-medium">
             View all projects
           </Link>
         </div>

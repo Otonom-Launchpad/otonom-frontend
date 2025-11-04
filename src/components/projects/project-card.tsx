@@ -103,7 +103,7 @@ export function ProjectCard({
         <div className="space-y-4 mb-8">
           <h3 className="font-semibold text-xl font-heading mt-2">{name}</h3>
           <div className="flex items-center text-sm text-slate-500 mt-3">
-            <span className="bg-[#9d00ff]/10 text-[#9d00ff] rounded-full px-3 py-1 text-xs font-medium">
+            <span className="bg-[#FA6906]/10 text-[#FA6906] rounded-full px-3 py-1 text-xs font-medium">
               {category}
             </span>
             {date && <span className="mx-2">•</span>}
@@ -116,14 +116,14 @@ export function ProjectCard({
           <div className="space-y-4 my-8">
             <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden my-4">
               <div 
-                className="h-full bg-[#9d00ff]" 
+                className="h-full bg-[#FA6906]" 
                 style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
                 aria-label={`${fundingPercentage}% funded`}
               />
             </div>
             
             <div className="flex justify-between text-sm my-3">
-              <span className="font-medium text-[#9d00ff]">
+              <span className="font-medium text-[#FA6906]">
                 ${(fundingRaised / 1000).toLocaleString()}k
               </span>
               <span className="text-slate-500">

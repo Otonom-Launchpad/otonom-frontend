@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '../styles/wallet-adapter-custom.css';
+
 /* Project status tag styling */
 .project-status-tag {
   display: inline-block !important;
@@ -25,7 +27,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 276 100% 50%; /* #9d00ff - Otonom Fund brand color */
+  --primary: 24 96% 50%; /* #FA6906 - Seismic brand color */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -63,7 +65,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 276 100% 60%; /* #9d00ff - Slightly brighter in dark mode */
+  --primary: 24 96% 56%; /* #FA6906 - Slightly brighter in dark mode */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;

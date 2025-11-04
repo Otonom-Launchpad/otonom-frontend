@@ -23,7 +23,7 @@
 
 /* Style the wallet buttons */
 .wallet-adapter-modal-list .wallet-adapter-button {
-  background-color: #9d00ff !important;
+  background-color: #000000 !important;
   width: 60% !important;
   margin: 0 auto !important;
   display: flex !important;
@@ -34,7 +34,7 @@
 }
 
 .wallet-adapter-modal-list .wallet-adapter-button:hover {
-  background-color: #8400d6 !important;
+  background-color: #1a1a1a !important;
 }
 
 /* Show the wallet icons */

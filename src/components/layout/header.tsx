@@ -113,8 +113,8 @@ export function Header() {
       <div className="container mx-auto px-4 h-full flex items-center">
         <div className="flex-1">
           <Link href="/" className="flex items-center">
-            <div className="h-9 w-auto flex items-center">
-              <img src="/images/Otonom Logo.svg" alt="Otonom Fund" className="h-9" />
+            <div className="h-14 w-auto flex items-center">
+              <img src="/images/seismic-logo.png" alt="Seismic" className="h-14" />
             </div>
           </Link>
         </div>
@@ -123,13 +123,13 @@ export function Header() {
           <div className="flex space-x-8">
             <Link 
               href="/" 
-              className={`text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              className={`text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
             >
               Projects
             </Link>
             <Link 
               href="/dashboard" 
-              className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
             >
               My Dashboard (WIP)
             </Link>
@@ -138,15 +138,11 @@ export function Header() {
         
         <div className="flex items-center justify-end flex-1">
           <div className="hidden md:flex items-center mr-10">
-            <Link href="https://www.linkedin.com/company/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
-              in
-            </Link>
-            <span className="mx-5 text-slate-800">/</span>
-            <Link href="https://x.com/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+            <Link href="https://x.com/sistemist" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
               X
             </Link>
             <span className="mx-5 text-slate-800">/</span>
-            <Link href="https://github.com/Otonom-Launchpad" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+            <Link href="https://github.com/seismic-initiative" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
               Github
             </Link>
           </div>
@@ -179,28 +175,24 @@ export function Header() {
           <div className="px-4 pt-2 pb-4 space-y-1 sm:px-6">
             <Link 
               href="/"
-              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Projects
             </Link>
             <Link 
               href="/dashboard"
-              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/dashboard' ? 'text-purple-700' : 'text-slate-700 hover:text-purple-700'}`}
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/dashboard' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               My Dashboard (WIP)
             </Link>
             <div className="flex justify-center px-3 py-5 mt-2 mb-2">
-              <Link href="https://www.linkedin.com/company/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
-                in
-              </Link>
-              <span className="mx-5 text-slate-800">/</span>
-              <Link href="https://x.com/otonomfund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+            <Link href="https://x.com/sistemist" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
                 X
               </Link>
               <span className="mx-5 text-slate-800">/</span>
-              <Link href="https://github.com/Otonom-Launchpad" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#9d00ff] font-bold text-sm">
+            <Link href="https://github.com/seismic-initiative" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
                 Github
               </Link>
             </div>

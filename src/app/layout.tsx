@@ -8,8 +8,8 @@ import "./globals.css";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const metadata: Metadata = {
-  title: "Otonom Fund",
-  description: "AI-powered launchpad for funding next-gen AI ventures",
+  title: "Seismic Fund",
+  description: "Funding aligned, systems-level ventures within the Seismic ecosystem",
 };
 
 // Initialize the Inter font

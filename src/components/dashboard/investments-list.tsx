@@ -88,7 +88,7 @@ export function InvestmentsList() {
         <p className="text-gray-400 text-center mb-4">You haven't made any investments yet</p>
         <Link 
           href="/" 
-          className="inline-flex items-center justify-center bg-[#9d00ff] hover:bg-[#9d00ff]/90 text-white px-4 py-2 rounded-[100px] text-sm font-medium transition-all duration-200"
+          className="inline-flex items-center justify-center bg-[#FA6906] hover:bg-[#FA6906]/90 text-white px-4 py-2 rounded-[100px] text-sm font-medium transition-all duration-200"
         >
           Explore Projects
         </Link>
@@ -109,14 +109,14 @@ export function InvestmentsList() {
                 <p className="text-gray-400 text-sm">{formatTimestamp(investment.timestamp)}</p>
               </div>
               <div className="text-right">
-                <p className="text-[#9d00ff] font-medium">${investment.amount.toLocaleString()}</p>
+                <p className="text-[#FA6906] font-medium">${investment.amount.toLocaleString()}</p>
                 <p className="text-gray-400 text-xs">OFUND Tokens</p>
               </div>
             </div>
             <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-800">
               <Link
                 href={`/project/${investment.projectName.toLowerCase().replace(/\s+/g, '')}`}
-                className="text-[#9d00ff] text-sm hover:underline"
+                className="text-[#FA6906] text-sm hover:underline"
               >
                 View Project
               </Link>

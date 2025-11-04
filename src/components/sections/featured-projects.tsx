@@ -113,7 +113,7 @@ export function FeaturedProjects() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-10">
           <h2 className="text-3xl font-bold">Featured Projects</h2>
-          <Link href="#" className="text-[#9d00ff] font-medium hover:text-[#8400d6]">
+          <Link href="#" className="text-[#FA6906] font-medium hover:text-[#d95d05]">
             View All Projects
           </Link>
         </div>
