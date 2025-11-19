@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
+import { AlertTriangle } from 'lucide-react';
+
 export function HeroSection() {
   return (
     <section className="h-screen w-full overflow-hidden bg-white flex flex-col items-center">
@@ -10,8 +12,13 @@ export function HeroSection() {
       {/* Main content - properly spaced within hero section */}
       <div className="container px-4 md:px-6 mx-auto relative z-10 flex-1 flex flex-col justify-center">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+          {/* Warning Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <AlertTriangle className="w-4 h-4" />
+            <span>Working demo MVP built on Solana — Content is dummy</span>
+          </div>
+
           {/* Main heading */}
-          
           <h1 className="text-4xl font-bold tracking-tight font-heading sm:text-5xl md:text-6xl mb-6">
             Fund The
             <div><span className="text-[#FA6906]">Conscious Future</span></div>
