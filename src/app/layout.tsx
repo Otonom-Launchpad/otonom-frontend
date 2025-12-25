@@ -8,12 +8,12 @@ import "./globals.css";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const metadata: Metadata = {
-  title: "Seismic Fund",
-  description: "Funding aligned, systems-level ventures within the Seismic ecosystem",
+  title: "Sysdom Fund",
+  description: "Community funding for systems-level builders. Transparent. Decentralized. Regenerative.",
 };
 
 // Initialize the Inter font
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter'
@@ -21,7 +21,7 @@ const inter = Inter({
 
 // Initialize the Inter Tight font
 const interTight = Inter_Tight({
-  subsets: ['latin'], 
+  subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter-tight',
   weight: ['400', '500', '600', '700']
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased font-sans bg-white">
         <Providers>
           {children}
-          <Toaster richColors closeButton position="bottom-right" /> 
+          <Toaster richColors closeButton position="bottom-right" />
         </Providers>
       </body>
     </html>

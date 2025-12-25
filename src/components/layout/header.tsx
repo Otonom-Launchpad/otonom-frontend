@@ -8,87 +8,21 @@ import { useCustomWalletModal } from '@/components/wallet/CustomWalletModalProvi
 import { useAuth } from '@/hooks/useAuth';
 import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from '@/utils/localStorage';
 
-// Import WalletMultiButton for standard wallet connection
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+// Import CustomWalletButton for consistent wallet modal experience
 import CustomWalletButton from '../wallet/CustomWalletButton';
-
-// Simple wallet connection button using the standard WalletMultiButton with fallback
-function ConnectButton({ compact = false }: { compact?: boolean }) {
-  const { publicKey, connected, disconnect } = useWallet();
-  const [mounted, setMounted] = useState(false);
-
-  // Ensure this component only renders wallet UI on the client **after** hydration
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Server-side (or pre-hydration) placeholder to avoid markup mismatch
-  if (!mounted) {
-    return (
-      <button
-        className="rounded-full px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
-        style={{
-          minWidth: compact ? '100px' : '160px',
-          height: '40px',
-          fontSize: '14px',
-          fontFamily: 'var(--font-inter-tight)',
-        }}
-        disabled
-      >
-        Connect
-      </button>
-    );
-  }
-
-  // Direct button implementation for reliability once mounted
-  return (
-    <div className="wallet-adapter-dropdown">
-      {connected ? (
-        <button 
-          className="wallet-adapter-button wallet-adapter-button-trigger rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
-          style={{
-            minWidth: compact ? '100px' : '160px',
-            height: '40px',
-            fontSize: '14px',
-            fontFamily: 'var(--font-inter-tight)',
-          }}
-          onClick={async () => {
-            try {
-              await disconnect();
-            } catch (e) {
-              console.error("Error disconnecting wallet:", e);
-            }
-          }}
-        >
-          {publicKey ? `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}` : 'Connect'}
-        </button>
-      ) : (
-        <WalletMultiButton 
-          className="rounded-full px-4 py-2 bg-black hover:bg-black/80 text-white"
-          style={{
-            minWidth: compact ? '100px' : '160px',
-            height: '40px',
-            fontSize: '14px',
-            fontFamily: 'var(--font-inter-tight)',
-          }}
-        />
-      )}
-    </div>
-  )
-}
 
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  
+
   // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const heroHeight = window.innerHeight * 0.3; // 30% of viewport height
-      
+
       if (currentScrollY < 20) {
         // Always show at the very top
         setVisible(true);
@@ -96,14 +30,14 @@ export function Header() {
         // Hide when scrolled past 30% of hero
         setVisible(lastScrollY > currentScrollY); // Show when scrolling up
       }
-      
+
       setLastScrollY(currentScrollY);
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
-  
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -114,40 +48,40 @@ export function Header() {
         <div className="flex-1">
           <Link href="/" className="flex items-center">
             <div className="h-14 w-auto flex items-center">
-              <img src="/images/seismic-logo.png" alt="Seismic" className="h-14" />
+              <img src="/images/s-bl-rec.png" alt="Sysdom" className="h-14" />
             </div>
           </Link>
         </div>
-        
+
         <nav className="hidden md:flex items-center justify-center flex-1">
           <div className="flex space-x-8">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className={`text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
             >
               Projects
             </Link>
-            <Link 
-              href="/dashboard" 
+            <Link
+              href="/dashboard"
               className={`text-sm font-medium ${pathname === '/dashboard' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
             >
               My Dashboard (WIP)
             </Link>
           </div>
         </nav>
-        
+
         <div className="flex items-center justify-end flex-1">
           <div className="hidden md:flex items-center mr-10">
             <Link href="https://x.com/sistemist" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
               X
             </Link>
             <span className="mx-5 text-slate-800">/</span>
-            <Link href="https://github.com/seismic-initiative" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
+            <Link href="https://github.com/sysdom-demo-fund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
               Github
             </Link>
           </div>
           <div className="hidden sm:block">
-            <ConnectButton />
+            <CustomWalletButton />
           </div>
 
           {/* Mobile Menu Button */}
@@ -168,19 +102,19 @@ export function Header() {
           </button>
         </div>
       </div>
-      
+
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white shadow-lg absolute w-full z-50">
           <div className="px-4 pt-2 pb-4 space-y-1 sm:px-6">
-            <Link 
+            <Link
               href="/"
               className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/' || pathname === '/projects' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Projects
             </Link>
-            <Link 
+            <Link
               href="/dashboard"
               className={`block px-3 py-2 rounded-md text-sm font-medium ${pathname === '/dashboard' ? 'text-[#FA6906]' : 'text-slate-700 hover:text-[#FA6906]'}`}
               onClick={() => setMobileMenuOpen(false)}
@@ -188,16 +122,16 @@ export function Header() {
               My Dashboard (WIP)
             </Link>
             <div className="flex justify-center px-3 py-5 mt-2 mb-2">
-            <Link href="https://x.com/sistemist" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
+              <Link href="https://x.com/sistemist" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
                 X
               </Link>
               <span className="mx-5 text-slate-800">/</span>
-            <Link href="https://github.com/seismic-initiative" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
+              <Link href="https://github.com/sysdom-demo-fund" target="_blank" rel="noopener noreferrer" className="text-slate-800 hover:text-[#FA6906] font-bold text-sm">
                 Github
               </Link>
             </div>
             <div className="sm:hidden px-3 py-3 flex justify-center mt-1 mb-3">
-              <ConnectButton compact={true} />
+              <CustomWalletButton compact={true} />
             </div>
           </div>
         </div>

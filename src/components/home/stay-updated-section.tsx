@@ -5,7 +5,7 @@ import { CustomWalletButton } from '@/components/wallet/CustomWalletButton';
 
 export function StayUpdatedSection() {
   const { connected } = useWallet();
-  
+
   return (
     <section className="py-16 md:py-24 bg-gradient-to-r from-[#FA6906]/10 to-orange-50">
       <div className="container px-4 md:px-6 mx-auto">
@@ -18,10 +18,10 @@ export function StayUpdatedSection() {
               ? 'You can now invest in systems-level ventures, track your investments, and participate in the Seismic ecosystem.'
               : 'Connect your Solana wallet to start investing in breakthrough ventures and be part of the future of innovation.'}
           </p>
-          
+
           <div className="flex justify-center mb-8">
             {connected ? (
-              <Button 
+              <Button
                 className="bg-black hover:bg-black/80 text-white rounded-full px-10 py-3"
                 onClick={() => window.location.href = '/dashboard'}
               >
@@ -33,10 +33,10 @@ export function StayUpdatedSection() {
               </div>
             )}
           </div>
-          
+
           <p className="text-sm text-slate-500 mt-4">
-            Seismic uses the Solana blockchain for secure and transparent investments. <br />
-            New to crypto? <a href="/faq" className="text-[#FA6906] hover:underline">Learn how to set up your wallet</a>.
+            Sysdom uses the Solana blockchain for secure and transparent investments. <br />
+            New to crypto? Learn how to set up your wallet.
           </p>
         </div>
       </div>
